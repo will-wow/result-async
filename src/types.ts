@@ -40,6 +40,8 @@ export const isResult = (
   result: Result<any, any> | any
 ): result is Result<any, any> => isOk(result) || isError(result);
 
+/* tslint:disable:function-name */
+
 /**
  * Represents the result of a successful operation.
  * Fantasy-land: Functor
@@ -47,7 +49,9 @@ export const isResult = (
 class OkResult<T> {
   constructor(public ok: T) {}
 
-  "fantasy-land/map" = <U>(f: (ok: T) => U): U => f(this.ok);
+  "fantasy-land/map"<U>(f: (ok: T) => U): U {
+    return f(this.ok);
+  }
 }
 
 /**
@@ -57,5 +61,7 @@ class OkResult<T> {
 class ErrorResult<T> {
   constructor(public error: T) {}
 
-  "fantasy-land/map" = (f: (ok: any) => any): T => f(this.error);
+  "fantasy-land/map"(f: (ok: any) => any): T {
+    return f(this.error);
+  }
 }
