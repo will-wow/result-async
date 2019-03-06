@@ -1,4 +1,4 @@
-import { ok, error } from "./types";
+import { ok, error } from "./result";
 import { mapOk, mapError } from "./sync";
 
 const add1 = (n: number) => n + 1;

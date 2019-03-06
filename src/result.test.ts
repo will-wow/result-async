@@ -1,4 +1,4 @@
-import { ok, error, isOk, isError, isResult } from "./types";
+import { ok, error, isOk, isError, isResult } from "./result";
 
 describe("types", () => {
   const okThing = ok(1);

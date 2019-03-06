@@ -1,11 +1,17 @@
 {
   "name": "result-async",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Error handling",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
   "scripts": {
-    "compile": "tsc -p ./",
+    "build": "tsc -p ./",
     "watch": "tsc -watch -p ./",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
     "test": "jest",
     "lint": "npm run lint-tslint && npm run lint-prettier",
     "lint-tslint": "tslint -p . --config tslint.json",

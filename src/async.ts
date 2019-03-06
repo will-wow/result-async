@@ -1,4 +1,4 @@
-import { Result, ok, error, isOk, isError } from "./types";
+import { Result, ok, error, isOk, isError } from "./result";
 
 export type ResultP<OkData, ErrorMessage> = Promise<
   Result<OkData, ErrorMessage>

@@ -1,4 +1,4 @@
-import { ok, error } from "./types";
+import { ok, error } from "./result";
 import { promiseToResult, resultify } from "./async";
 
 describe("Result", () => {

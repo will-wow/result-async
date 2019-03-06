@@ -44,7 +44,8 @@ export const isResult = (
 
 /**
  * Represents the result of a successful operation.
- * Fantasy-land: Functor
+ * Create one with Result.ok(data)
+ * Fantasy-land Functor
  */
 class OkResult<T> {
   constructor(public ok: T) {}
@@ -56,6 +57,7 @@ class OkResult<T> {
 
 /**
  * Represents the result of an unsuccessful operation.
+ * Create one with Result.ok(data)
  * Fantasy-land: Functor
  */
 class ErrorResult<T> {

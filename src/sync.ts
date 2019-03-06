@@ -1,8 +1,4 @@
-import { Result, ok, error, isOk, isError } from "./types";
-
-export type ResultP<OkData, ErrorMessage> = Promise<
-  Result<OkData, ErrorMessage>
->;
+import { Result, ok, error, isOk, isError } from "./result";
 
 /**
  * Edits a value that's wrapped in an {ok: data}
