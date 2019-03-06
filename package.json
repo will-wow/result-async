@@ -1,0 +1,48 @@
+{
+  "name": "result-async",
+  "version": "0.1.0",
+  "description": "Error handling",
+  "main": "index.js",
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "jest",
+    "lint": "npm run lint-tslint && npm run lint-prettier",
+    "lint-tslint": "tslint -p . --config tslint.json",
+    "lint-prettier": "prettier --list-different \"**/*.{ts,json,yml}\"",
+    "format": "npm run format-tslint && npm run format-prettier",
+    "format-tslint": "tslint -p . --fix --config tslint.json",
+    "format-prettier": "prettier --write \"**/*.{ts,json,yml}\""
+  },
+  "author": "Will Ockelmann-Wagner",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/will-wow/result.git"
+  },
+  "engines": {
+    "node": "^8.11.3"
+  },
+  "keywords": [
+    "error",
+    "either",
+    "result",
+    "functional",
+    "async",
+    "promise",
+    "fantasy land"
+  ],
+  "devDependencies": {
+    "@types/jest": "^24.0.9",
+    "jest": "^24.1.0",
+    "prettier": "^1.16.4",
+    "ts-jest": "^24.0.0",
+    "tslint": "^5.13.1",
+    "tslint-config-airbnb": "^5.11.1",
+    "tslint-config-prettier": "^1.18.0",
+    "typescript": "^3.3.3333"
+  },
+  "dependencies": {
+    "remeda": "0.0.9"
+  }
+}
