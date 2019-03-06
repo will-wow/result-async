@@ -88,6 +88,34 @@ export function createPipeAsync<In, Out1, Out2, Out3, Out4, OutLast>(
   f5: AsyncUnary<Out4, OutLast>
 ): (start: In) => Promise<OutLast>;
 
+export function createPipeAsync<In, Out1, Out2, Out3, Out4, Out5, OutLast>(
+  f1: AsyncUnary<In, Out1>,
+  f2: AsyncUnary<Out1, Out2>,
+  f3: AsyncUnary<Out2, Out3>,
+  f4: AsyncUnary<Out3, Out4>,
+  f5: AsyncUnary<Out4, Out5>,
+  f6: AsyncUnary<Out5, OutLast>
+): (start: In) => Promise<OutLast>;
+
+export function createPipeAsync<
+  In,
+  Out1,
+  Out2,
+  Out3,
+  Out4,
+  Out5,
+  Out6,
+  OutLast
+>(
+  f1: AsyncUnary<In, Out1>,
+  f2: AsyncUnary<Out1, Out2>,
+  f3: AsyncUnary<Out2, Out3>,
+  f4: AsyncUnary<Out3, Out4>,
+  f5: AsyncUnary<Out4, Out5>,
+  f6: AsyncUnary<Out5, Out6>,
+  f7: AsyncUnary<Out6, OutLast>
+): (start: In) => Promise<OutLast>;
+
 export function createPipeAsync(...fs: AsyncUnary<any, any>[]) {
   return async (start: any) => {
     (pipeAsync as any)(start, ...fs);

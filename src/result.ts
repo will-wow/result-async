@@ -50,6 +50,10 @@ export const isResult = (
 class OkResult<T> {
   constructor(public ok: T) {}
 
+  toString() {
+    return `{ok: ${this.ok}}`;
+  }
+
   "fantasy-land/map"<U>(f: (ok: T) => U): U {
     return f(this.ok);
   }
@@ -62,6 +66,10 @@ class OkResult<T> {
  */
 class ErrorResult<T> {
   constructor(public error: T) {}
+
+  toString() {
+    return `{error: ${this.error}}`;
+  }
 
   "fantasy-land/map"(f: (ok: any) => any): T {
     return f(this.error);

@@ -11,15 +11,19 @@ import { Result, ok, error, isOk, isError } from "./result";
  * @param f - the function to run on the ok data
  * @param result - The result to match against
  */
-export const mapOk = <OkData, ErrorMessage, OkOutput>(
+export function mapOk<OkData, ErrorMessage, OkOutput>(
   f: (ok: OkData) => OkOutput
-) => (result: Result<OkData, ErrorMessage>): Result<OkOutput, ErrorMessage> => {
-  if (isError(result)) {
-    return result;
-  }
+) {
+  return (
+    result: Result<OkData, ErrorMessage>
+  ): Result<OkOutput, ErrorMessage> => {
+    if (isError(result)) {
+      return result;
+    }
 
-  return ok(f(result.ok));
-};
+    return ok(f(result.ok));
+  };
+}
 
 /**
  * Chains together operations that may succeed or fail
@@ -32,17 +36,19 @@ export const mapOk = <OkData, ErrorMessage, OkOutput>(
  * @param result - The result to match against
  * @returns - The Result from function f or the Error
  */
-export const chainOk = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
+export function chainOk<OkData, ErrorMessage, OkOutput, ErrorOutput>(
   f: (ok: OkData) => Result<OkOutput, ErrorOutput>
-) => (
-  result: Result<OkData, ErrorMessage>
-): Result<OkOutput, ErrorMessage | ErrorOutput> => {
-  if (isError(result)) {
-    return result;
-  }
+) {
+  return (
+    result: Result<OkData, ErrorMessage>
+  ): Result<OkOutput, ErrorMessage | ErrorOutput> => {
+    if (isError(result)) {
+      return result;
+    }
 
-  return f(result.ok);
-};
+    return f(result.ok);
+  };
+}
 
 /**
  * Replaces a value that's wrapped in an {ok: data}
@@ -56,15 +62,17 @@ export const chainOk = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @param f - the function to run on the ok data
  * @param result - The result to match against
  */
-export const replaceOk = <OkData, ErrorMessage, OkOutput>(
-  newData: OkOutput
-) => (result: Result<OkData, ErrorMessage>): Result<OkOutput, ErrorMessage> => {
-  if (isError(result)) {
-    return result;
-  }
+export function replaceOk<OkData, ErrorMessage, OkOutput>(newData: OkOutput) {
+  return (
+    result: Result<OkData, ErrorMessage>
+  ): Result<OkOutput, ErrorMessage> => {
+    if (isError(result)) {
+      return result;
+    }
 
-  return ok(newData);
-};
+    return ok(newData);
+  };
+}
 
 /**
  * Edits a value that's wrapped in an {error: data}
@@ -77,15 +85,19 @@ export const replaceOk = <OkData, ErrorMessage, OkOutput>(
  * @param f - the function to run on the ok data
  * @param result - The result to match against
  */
-export const mapError = <OkData, ErrorMessage, ErrorOutput>(
+export function mapError<OkData, ErrorMessage, ErrorOutput>(
   f: (error: ErrorMessage) => ErrorOutput
-) => (result: Result<OkData, ErrorMessage>): Result<OkData, ErrorOutput> => {
-  if (isOk(result)) {
-    return result;
-  }
+) {
+  return (
+    result: Result<OkData, ErrorMessage>
+  ): Result<OkData, ErrorOutput> => {
+    if (isOk(result)) {
+      return result;
+    }
 
-  return error(f(result.error));
-};
+    return error(f(result.error));
+  };
+}
 
 /**
  * Chains together operations that may succeed or fail
@@ -98,17 +110,19 @@ export const mapError = <OkData, ErrorMessage, ErrorOutput>(
  * @param result - The result to match against
  * @returns - The Result from function f or the Ok result
  */
-export const chainError = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
+export function chainError<OkData, ErrorMessage, OkOutput, ErrorOutput>(
   f: (ok: ErrorMessage) => Result<OkOutput, ErrorOutput>
-) => (
-  result: Result<OkData, ErrorMessage>
-): Result<OkData | OkOutput, ErrorOutput> => {
-  if (isOk(result)) {
-    return result;
-  }
+) {
+  return (
+    result: Result<OkData, ErrorMessage>
+  ): Result<OkData | OkOutput, ErrorOutput> => {
+    if (isOk(result)) {
+      return result;
+    }
 
-  return f(result.error);
-};
+    return f(result.error);
+  };
+}
 
 /**
  * Replaces a value that's wrapped in an {error: data}
@@ -122,15 +136,19 @@ export const chainError = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @param f - the function to run on the ok data
  * @param result - The result to match against
  */
-export const replaceError = <OkData, ErrorMessage, ErrorOutput>(
+export function replaceError<OkData, ErrorMessage, ErrorOutput>(
   newError: ErrorOutput
-) => (result: Result<OkData, ErrorMessage>): Result<OkData, ErrorOutput> => {
-  if (isOk(result)) {
-    return result;
-  }
+) {
+  return (
+    result: Result<OkData, ErrorMessage>
+  ): Result<OkData, ErrorOutput> => {
+    if (isOk(result)) {
+      return result;
+    }
 
-  return error(newError);
-};
+    return error(newError);
+  };
+}
 
 /**
  * Takes a result, and runs either an ifOk or ifError function on it.
@@ -139,11 +157,11 @@ export const replaceError = <OkData, ErrorMessage, ErrorOutput>(
  * @param result - Result to match against
  * @returns The return value of the function that gets run.
  */
-export const either = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
+export function either<OkData, ErrorMessage, OkOutput, ErrorOutput>(
   result: Result<OkData, ErrorMessage>,
   ifOk: (ok: OkData) => OkOutput,
   ifError: (error: ErrorMessage) => ErrorOutput
-): OkOutput | ErrorOutput => {
+): OkOutput | ErrorOutput {
   if (isOk(result)) {
     return ifOk(result.ok);
   }
@@ -151,16 +169,19 @@ export const either = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
     return ifError(result.error);
   }
   throw new Error("invalid result");
-};
+}
 
 /**
  * Converts a result to a boolean.
  * @param result
  * @returns true if Ok, false if Error
  */
-export const resultToBoolean = (result: Result<any, any>): boolean =>
-  isOk(result) ? true : false;
+export function resultToBoolean(result: Result<any, any>): boolean {
+  return isOk(result) ? true : false;
+}
 
-export const firstOk = <OkData>(
+export function firstOk<OkData>(
   results: Result<OkData, any>[]
-): Result<OkData, null> => results.find(isOk) || error(null);
+): Result<OkData, null> {
+  return results.find(isOk) || error(null);
+}
