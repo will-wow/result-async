@@ -10,6 +10,7 @@
   "scripts": {
     "build": "tsc -p ./",
     "watch": "tsc -watch -p ./",
+    "docs": "typedoc",
     "prepare": "npm run build",
     "prepublishOnly": "npm test && npm run lint",
     "test": "jest",
@@ -46,6 +47,7 @@
     "tslint": "^5.13.1",
     "tslint-config-airbnb": "^5.11.1",
     "tslint-config-prettier": "^1.18.0",
+    "typedoc": "^0.14.2",
     "typescript": "^3.3.3333"
   },
   "dependencies": {
