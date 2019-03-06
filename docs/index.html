@@ -1,0 +1,303 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>result-async</title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.js" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">result-async</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="globals.html">Globals</a>
+				</li>
+			</ul>
+			<h1> result-async</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<h1 id="result-async">Result-Async</h1>
+				<p>A library for handling errors with types and without exceptions - even asynchronous ones!</p>
+				<h2 id="install">Install</h2>
+				<pre><code class="language-bash">npm i result-async --save</code></pre>
+				<p>or</p>
+				<pre><code class="language-bash">yarn add result-async</code></pre>
+				<h2 id="examples">Examples</h2>
+				<p>You can react to errors inline:</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { isError } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
+
+<span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> tryToGetAListOfComments(<span class="hljs-string">"my-blog-post"</span>);
+
+<span class="hljs-keyword">const</span> comments = isOk(result) ? result.ok : [];</code></pre>
+				<p>Return a success or failure status:</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ok, error } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
+
+<span class="hljs-keyword">return</span> isAllWell() ? ok(<span class="hljs-string">"all is well"</span>) : error(<span class="hljs-string">"all is lost"</span>);</code></pre>
+				<p>And you can pipe functions - both synchronous and asynchronous ones - together for a big data-handling pipeline:</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {
+  resultify,
+  asyncChainOk,
+  mapError,
+  mapOk,
+  chainError
+} <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
+
+pipeAsync(
+  someData,
+  resultify(someAsyncFunction),
+  mapOk(transformData),
+  asyncChainOk(anotherAsyncFunction),
+  mapError(logError),
+  chainError(tryToRescueError)
+);</code></pre>
+				<p>See <a href="./docs">the docs</a> for the full API documentation.</p>
+				<h2 id="typescript">Typescript</h2>
+				<p><code>result-async</code> is written in TypeScript, and it&#39;s built to help write typesafe error handling code. But it works great with vanilla JavaScript too!</p>
+				<h3 id="types">Types</h3>
+				<p>The important types are:</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">type</span> Result&lt;OkData, ErrorMessage&gt; = OkResult&lt;Data&gt; | ErrorResult&lt;Message&gt;;
+<span class="hljs-keyword">type</span> ResultP&lt;OkData, ErrorMessage&gt; = <span class="hljs-built_in">Promise</span>&lt;Result&lt;OkData, ErrorMessage&gt;&gt;;</code></pre>
+				<p>So a result could be either Ok or an Error - and either way, the payload is strongly typed.</p>
+				<p><code>ResultP</code> is just a promise that wraps a <code>Result</code>. Async functions can return a <code>ResultP</code>, so that success and failure both have types after an <code>await</code>;</p>
+				<h3 id="guards">Guards</h3>
+				<p><code>isOk(result)</code> and <code>isError(result)</code> are both typeguards, so if <code>isOk</code> returns true, typescript will know the Result is actually an OkResult:</p>
+				<pre><code class="language-typescript"><span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">result: Result&lt;<span class="hljs-built_in">number</span>, <span class="hljs-built_in">string</span>&gt;</span>) </span>{
+  <span class="hljs-comment">// Type error: ok could be undefined.</span>
+  result.ok + <span class="hljs-number">1</span>
+
+  <span class="hljs-keyword">if</span> (isOk(result)) {
+    <span class="hljs-comment">// No type error, ok is definitely defined.</span>
+    result.ok + <span class="hljs-number">1</span>
+  }
+}</code></pre>
+				<h2 id="background">Background</h2>
+				<p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function"><code>async</code>/<code>await</code></a> has been a huge win for avoiding the dreaded Pyramid of doom in JavaScript.</p>
+				<p>These bad days are behind us forever:</p>
+				<pre><code class="language-javascript">someFunction(data, (err, data) =&gt; {
+  <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">throw</span> err;
+  secondFunction(data, (err, data) =&gt; {
+    <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">throw</span> err;
+    thirdFunction(data, (err, data) =&gt; {
+      <span class="hljs-keyword">if</span> (err) <span class="hljs-keyword">throw</span> err;
+
+      doStuff(data);
+    });
+  });
+});</code></pre>
+				<p>Replaced with:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">try</span> {
+  data = <span class="hljs-keyword">await</span> someFunction(data);
+  data = <span class="hljs-keyword">await</span> secondFunction(data);
+  data = <span class="hljs-keyword">await</span> thirdFunction(data);
+} <span class="hljs-keyword">catch</span> (e) {
+  doSomethingWithError(e);
+}</code></pre>
+				<p>Much better. But still, errors are treated really differently than normal data. And in TypeScript, errors are also untyped. For a genuine exception that&#39;s fine, but there are a lot of cases where I expect a call to sometimes fail (for instance, checking if a resource exists, and creating one if it doesn&#39;t, where creation itself might fail). In those cases, having to rely on errors can feel a little heavyweight.</p>
+				<p>The functional programming world has an answer for this - the Result type. It&#39;s in <a href="http://book.realworldhaskell.org/read/error-handling.html#errors.either">Haskell</a>, <a href="https://ocaml.org/learn/tutorials/error_handling.html#Result-type">Ocaml</a>, <a href="https://medium.com/@moxicon/elixir-best-practices-for-error-values-50dc015a06f5">Elixir</a>, and more. The idea is to have a function that could fail return a response that&#39;s marked as either a Success or a Failure. Then you can react to that result status, pass it along, ignore it, or whatever - just like any other data structure.</p>
+				<p>In many FP languages, we have pattern matching to make this easier:</p>
+				<pre><code class="language-elixir"><span class="hljs-keyword">case</span> some_async_function() <span class="hljs-keyword">do</span>
+  {<span class="hljs-symbol">:ok</span>, data} -&gt; do_something(data)
+  {<span class="hljs-symbol">:error</span>, msg} -&gt; do_something_else(msg)
+<span class="hljs-keyword">end</span></code></pre>
+				<p>But <code>result-async</code> tries to make it easy to create and handle Results - even when they come from async functions:</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { either } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
+
+either(
+  <span class="hljs-keyword">await</span> someAsyncFunction(),
+  <span class="hljs-function"><span class="hljs-params">data</span> =&gt;</span> doSomething(data),
+  <span class="hljs-function"><span class="hljs-params">msg</span> =&gt;</span> doSomethingElse(msg)
+);</code></pre>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class="globals  ">
+						<a href="globals.html"><em>Globals</em></a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="globals.html#result" class="tsd-kind-icon">Result</a>
+					</li>
+					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
+						<a href="globals.html#resultp" class="tsd-kind-icon">ResultP</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#asyncchainerror" class="tsd-kind-icon">async<wbr>Chain<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#asyncchainok" class="tsd-kind-icon">async<wbr>Chain<wbr>Ok</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#chainerror" class="tsd-kind-icon">chain<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#chainok" class="tsd-kind-icon">chain<wbr>Ok</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#createpipeasync" class="tsd-kind-icon">create<wbr>Pipe<wbr>Async</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#either" class="tsd-kind-icon">either</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#error" class="tsd-kind-icon">error</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#firstok" class="tsd-kind-icon">first<wbr>Ok</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#iserror" class="tsd-kind-icon">is<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#isok" class="tsd-kind-icon">is<wbr>Ok</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#isresult" class="tsd-kind-icon">is<wbr>Result</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#maperror" class="tsd-kind-icon">map<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#mapok" class="tsd-kind-icon">map<wbr>Ok</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#ok" class="tsd-kind-icon">ok</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#pipeasync" class="tsd-kind-icon">pipe<wbr>Async</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#promisetoresult" class="tsd-kind-icon">promise<wbr>ToResult</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#replaceerror" class="tsd-kind-icon">replace<wbr>Error</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#replaceok" class="tsd-kind-icon">replace<wbr>Ok</a>
+					</li>
+					<li class=" tsd-kind-function">
+						<a href="globals.html#resulttoboolean" class="tsd-kind-icon">result<wbr>ToBoolean</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#resultify" class="tsd-kind-icon">resultify</a>
+					</li>
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-module"><span class="tsd-kind-icon">Module</span></li>
+				<li class="tsd-kind-object-literal"><span class="tsd-kind-icon">Object literal</span></li>
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-index-signature"><span class="tsd-kind-icon">Index signature</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+				<li class="tsd-kind-enum-member"><span class="tsd-kind-icon">Enumeration member</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-enum"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-enum"><span class="tsd-kind-icon">Method</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-interface tsd-has-type-parameter"><span class="tsd-kind-icon">Interface with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-interface"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-interface"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+				<li class="tsd-kind-constructor tsd-parent-kind-class"><span class="tsd-kind-icon">Constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class"><span class="tsd-kind-icon">Method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class"><span class="tsd-kind-icon">Accessor</span></li>
+				<li class="tsd-kind-index-signature tsd-parent-kind-class"><span class="tsd-kind-icon">Index signature</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-constructor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited constructor</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-inherited"><span class="tsd-kind-icon">Inherited accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-protected"><span class="tsd-kind-icon">Protected accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private method</span></li>
+				<li class="tsd-kind-accessor tsd-parent-kind-class tsd-is-private"><span class="tsd-kind-icon">Private accessor</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-property tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static property</span></li>
+				<li class="tsd-kind-call-signature tsd-parent-kind-class tsd-is-static"><span class="tsd-kind-icon">Static method</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="http://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+<script>if (location.protocol == 'file:') document.write('<script src="assets/js/search.js"><' + '/script>');</script>
+</body>
+</html>
