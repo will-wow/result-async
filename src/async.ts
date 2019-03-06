@@ -64,7 +64,9 @@ export const promiseToResult = <OkData, ErrorMessage>(
  * @param f A function that returns a promise
  * @returns a resolved Ok if the the promise resolved, a resolved Error if the promise was rejected.
  */
-export const resultify = <OkData, ErrorMessage, Args extends any[]>(
+export function resultify<Args extends any[], OkData, ErrorMessage = any>(
   f: (...args: Args) => Promise<OkData>
-) => (...args: Args): ResultP<OkData, ErrorMessage> =>
-  promiseToResult(f(...args));
+) {
+  return (...args: Args): ResultP<OkData, ErrorMessage> =>
+    promiseToResult(f(...args));
+}
