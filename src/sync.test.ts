@@ -39,4 +39,4 @@ describe("Result", () => {
       expect(mapError(add1)(result)).toEqual(ok("good"));
     });
   });
-  });
+});
