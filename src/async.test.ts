@@ -1,7 +1,41 @@
-import { ok, error } from "./result";
-import { promiseToResult, resultify } from "./async";
+import { ok, error, Result } from "./result";
+import {
+  promiseToResult,
+  resultify,
+  ResultP,
+  asyncChainOk,
+  asyncChainError
+} from "./async";
 
-describe("Result", () => {
+type TestCase = [
+  Result<any, any>,
+  (arg: any) => (result: Result<any, any>) => ResultP<any, any>,
+  any,
+  Result<any, any>
+];
+
+const asyncAdd1Ok = (n: number) => Promise.resolve(ok(n + 1));
+const asyncAdd1Error = (n: number) => Promise.resolve(error(n + 1));
+
+describe("async", () => {
+  describe("mappers", () => {
+    const testCases: TestCase[] = [
+      [ok(1), asyncChainOk, asyncAdd1Ok, ok(2)],
+      [ok(1), asyncChainOk, asyncAdd1Error, error(2)],
+      [error(1), asyncChainOk, asyncAdd1Ok, error(1)],
+      [ok(1), asyncChainError, asyncAdd1Ok, ok(1)],
+      [error(1), asyncChainError, asyncAdd1Ok, ok(2)]
+    ];
+
+    testCases.map(([result, testedFunction, f, expected]) => {
+      it(`uses ${
+        testedFunction.name
+      } to change ${result.toString()} to ${expected.toString()}`, async () => {
+        expect(await testedFunction(f)(result)).toEqual(expected);
+      });
+    });
+  });
+
   describe("promiseToResult", () => {
     it("converts a resolved promise to an ok", async () => {
       const promise = Promise.resolve(1);

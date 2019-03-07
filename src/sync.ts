@@ -179,9 +179,3 @@ export function either<OkData, ErrorMessage, OkOutput, ErrorOutput>(
 export function resultToBoolean(result: Result<any, any>): boolean {
   return isOk(result) ? true : false;
 }
-
-export function firstOk<OkData>(
-  results: Result<OkData, any>[]
-): Result<OkData, null> {
-  return results.find(isOk) || error(null);
-}

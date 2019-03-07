@@ -7,8 +7,7 @@ import {
   mapOk,
   replaceError,
   replaceOk,
-  resultToBoolean,
-  firstOk
+  resultToBoolean
 } from "./sync";
 
 const add1 = (n: number) => n + 1;
@@ -22,22 +21,33 @@ type TestCase = [
   any,
   Result<any, any>
 ];
-const testCases: TestCase[] = [
-  [ok(1), mapOk, add1, ok(2)],
-  [error(1), mapOk, add1, error(1)],
-  [ok(1), mapError, add1, ok(1)],
-  [error(1), mapError, add1, error(2)],
-  [ok(1), chainOk, add1Ok, ok(2)],
-  [ok(1), chainOk, add1Error, error(2)],
-  [error(1), chainOk, add1Ok, error(1)],
-  [ok(1), chainError, add1Ok, ok(1)],
-  [error(1), chainError, add1Ok, ok(2)],
-  [error(1), chainError, add1Error, error(2)],
-  [ok(1), replaceOk, "good", ok("good")],
-  [error(1), replaceOk, "good", error(1)],
-  [ok(1), replaceError, "bad", ok(1)],
-  [error(1), replaceError, "bad", error("bad")]
-];
+
+describe("mappers", () => {
+  const testCases: TestCase[] = [
+    [ok(1), mapOk, add1, ok(2)],
+    [error(1), mapOk, add1, error(1)],
+    [ok(1), mapError, add1, ok(1)],
+    [error(1), mapError, add1, error(2)],
+    [ok(1), chainOk, add1Ok, ok(2)],
+    [ok(1), chainOk, add1Error, error(2)],
+    [error(1), chainOk, add1Ok, error(1)],
+    [ok(1), chainError, add1Ok, ok(1)],
+    [error(1), chainError, add1Ok, ok(2)],
+    [error(1), chainError, add1Error, error(2)],
+    [ok(1), replaceOk, "good", ok("good")],
+    [error(1), replaceOk, "good", error(1)],
+    [ok(1), replaceError, "bad", ok(1)],
+    [error(1), replaceError, "bad", error("bad")]
+  ];
+
+  testCases.map(([result, testedFunction, f, expected]) => {
+    it(`uses ${
+      testedFunction.name
+    } to change ${result.toString()} to ${expected.toString()}`, () => {
+      expect(testedFunction(f)(result)).toEqual(expected);
+    });
+  });
+});
 
 describe("sync", () => {
   it("wraps with ok", () => {
@@ -70,28 +80,6 @@ describe("sync", () => {
     it("raises on invalid input", () => {
       const badResult: any = { foo: "bar" };
       expect(() => either(badResult, add1, subtract1)).toThrow();
-    });
-  });
-
-  describe("firstOk", () => {
-    it("finds an OK", () => {
-      const results = [error(1), ok(2), ok(3)];
-      expect(firstOk(results)).toEqual(ok(2));
-    });
-
-    it("doesn't find an ok", () => {
-      const results = [error(1), error(2), error(3)];
-      expect(firstOk(results)).toEqual(error(null));
-    });
-  });
-
-  describe("mappers", () => {
-    testCases.map(([result, testedFunction, f, expected]) => {
-      it(`uses ${
-        testedFunction.name
-      } to change ${result.toString()} to ${expected.toString()}`, () => {
-        expect(testedFunction(f)(result)).toEqual(expected);
-      });
     });
   });
 });
