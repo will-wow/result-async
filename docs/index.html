@@ -61,11 +61,14 @@
 		<div class="col-8 col-content">
 			<div class="tsd-panel tsd-typography">
 				<h1 id="result-async">Result-Async</h1>
-				<p>A library for handling errors with types and without exceptions - even asynchronous ones!</p>
+				<img width="80" height="80" src="./logo/logo.png" alt="logo" align="right" />
+				<p>A library for handling errors with types and without exceptions - even asynchronous ones</p>
 				<h2 id="install">Install</h2>
 				<pre><code class="language-bash">npm i result-async --save</code></pre>
 				<p>or</p>
 				<pre><code class="language-bash">yarn add result-async</code></pre>
+				<p>Then import the functions and (in TypeScript) types you need:</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ok, mapOk, asyncChainOk, Result } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;</code></pre>
 				<h2 id="examples">Examples</h2>
 				<p>You can react to errors inline:</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { isError } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
@@ -94,7 +97,7 @@ pipeAsync(
   mapError(logError),
   chainError(tryToRescueError)
 );</code></pre>
-				<p>See <a href="./docs">the docs</a> for the full API documentation.</p>
+				<p>See <a href="https://github.com/will-wow/result-async">the docs</a> for the full API documentation.</p>
 				<h2 id="typescript">Typescript</h2>
 				<p><code>result-async</code> is written in TypeScript, and it&#39;s built to help write typesafe error handling code. But it works great with vanilla JavaScript too!</p>
 				<h3 id="types">Types</h3>

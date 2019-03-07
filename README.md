@@ -1,6 +1,8 @@
 # Result-Async
 
-A library for handling errors with types and without exceptions - even asynchronous ones!
+<img width="80" height="80" src="./logo/logo.png" alt="logo" align="right" />
+
+A library for handling errors with types and without exceptions - even asynchronous ones
 
 ## Install
 
@@ -12,6 +14,12 @@ or
 
 ```bash
 yarn add result-async
+```
+
+Then import the functions and (in TypeScript) types you need:
+
+```typescript
+import { ok, mapOk, asyncChainOk, Result } from "result-async";
 ```
 
 ## Examples
