@@ -15,17 +15,19 @@ export type ResultP<OkData, ErrorMessage> = Promise<
  * @param result - The result to match against
  * @returns - The Result from function f or the Error
  */
-export const asyncChainOk = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
+export function asyncChainOk<OkData, ErrorMessage, OkOutput, ErrorOutput>(
   f: (ok: OkData) => ResultP<OkOutput, ErrorOutput>
-) => async (
-  result: Result<OkData, ErrorMessage>
-): ResultP<OkOutput, ErrorMessage | ErrorOutput> => {
-  if (isError(result)) {
-    return result;
-  }
+) {
+  return async (
+    result: Result<OkData, ErrorMessage>
+  ): ResultP<OkOutput, ErrorMessage | ErrorOutput> => {
+    if (isError(result)) {
+      return result;
+    }
 
-  return f(result.ok);
-};
+    return f(result.ok);
+  };
+}
 
 /**
  * Chains together async operations that may succeed or fail

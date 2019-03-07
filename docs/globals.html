@@ -73,10 +73,12 @@
 						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#allok" class="tsd-kind-icon">all<wbr>Ok</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#asyncchainerror" class="tsd-kind-icon">async<wbr>Chain<wbr>Error</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#asyncchainok" class="tsd-kind-icon">async<wbr>Chain<wbr>Ok</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#chainerror" class="tsd-kind-icon">chain<wbr>Error</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#chainok" class="tsd-kind-icon">chain<wbr>Ok</a></li>
+								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#collectoks" class="tsd-kind-icon">collect<wbr>Oks</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#createpipeasync" class="tsd-kind-icon">create<wbr>Pipe<wbr>Async</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#either" class="tsd-kind-icon">either</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#error" class="tsd-kind-icon">error</a></li>
@@ -106,7 +108,7 @@
 					<div class="tsd-signature tsd-kind-icon">Result<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">OkResult</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">OkData</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ErrorResult</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">ErrorMessage</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/result.ts#L4">result.ts:4</a></li>
+							<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/result.ts#L4">result.ts:4</a></li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -121,13 +123,51 @@
 					<div class="tsd-signature tsd-kind-icon">ResultP<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="globals.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">OkData</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">ErrorMessage</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/async.ts#L3">async.ts:3</a></li>
+							<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/async.ts#L3">async.ts:3</a></li>
 						</ul>
 					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-has-type-parameter">
+					<a name="allok" class="tsd-anchor"></a>
+					<h3>all<wbr>Ok</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">all<wbr>Ok&lt;ErrorData&gt;<span class="tsd-signature-symbol">(</span>results<span class="tsd-signature-symbol">: </span><a href="globals.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">ErrorData</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="globals.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">ErrorData</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/collection.ts#L43">collection.ts:43</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>For checking that a collection of computations all succeeded, when
+									you don&#39;t care about the outcomes.</p>
+								</div>
+								<p>Takes a list of Results. If all are Ok, returns ok(null). If any are error(msg), returns the first error(msg).</p>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>ErrorData</h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>results: <a href="globals.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">ErrorData</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="globals.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">ErrorData</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-has-type-parameter">
 					<a name="asyncchainerror" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagConst">Const</span> async<wbr>Chain<wbr>Error</h3>
@@ -138,7 +178,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/async.ts#L41">async.ts:41</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/async.ts#L43">async.ts:43</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -202,7 +242,7 @@
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-has-type-parameter">
 					<a name="asyncchainok" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagConst">Const</span> async<wbr>Chain<wbr>Ok</h3>
+					<h3>async<wbr>Chain<wbr>Ok</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-has-type-parameter">
 						<li class="tsd-signature tsd-kind-icon">async<wbr>Chain<wbr>Ok&lt;OkData, ErrorMessage, OkOutput, ErrorOutput&gt;<span class="tsd-signature-symbol">(</span>f<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">(Anonymous function)</span></li>
 					</ul>
@@ -210,7 +250,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/async.ts#L18">async.ts:18</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/async.ts#L18">async.ts:18</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -241,9 +281,7 @@
 								<li>
 									<h5>f: <span class="tsd-signature-type">function</span></h5>
 									<div class="tsd-comment tsd-typography">
-										<div class="lead">
-											<p>the function to run on the ok data</p>
-										</div>
+										<p>the function to run on the ok data</p>
 									</div>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-siganture">
@@ -282,7 +320,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/sync.ts#L113">sync.ts:113</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/sync.ts#L113">sync.ts:113</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -352,7 +390,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/sync.ts#L39">sync.ts:39</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/sync.ts#L39">sync.ts:39</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -413,6 +451,49 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-has-type-parameter">
+					<a name="collectoks" class="tsd-anchor"></a>
+					<h3>collect<wbr>Oks</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">collect<wbr>Oks&lt;OkData, ErrorMessage&gt;<span class="tsd-signature-symbol">(</span>results<span class="tsd-signature-symbol">: </span><a href="globals.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">OkData</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">ErrorMessage</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="globals.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">OkData</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">ErrorMessage</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/collection.ts#L12">collection.ts:12</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>For checking that a collection of computations all succeeded, when you
+									you care about the outcomes.</p>
+								</div>
+								<p>Takes a list of Results. If all are Ok, collects the data
+									in a list and returns ok([data]).
+								If any are Errors, returns the first error(msg)</p>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>OkData</h4>
+								</li>
+								<li>
+									<h4>ErrorMessage</h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>results: <a href="globals.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">OkData</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">ErrorMessage</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="globals.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">OkData</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">ErrorMessage</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-has-type-parameter">
 					<a name="createpipeasync" class="tsd-anchor"></a>
 					<h3>create<wbr>Pipe<wbr>Async</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-has-type-parameter">
@@ -427,7 +508,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/pipeAsync.ts#L65">pipeAsync.ts:65</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/pipeAsync.ts#L65">pipeAsync.ts:65</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -474,7 +555,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/pipeAsync.ts#L70">pipeAsync.ts:70</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/pipeAsync.ts#L70">pipeAsync.ts:70</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -527,7 +608,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/pipeAsync.ts#L76">pipeAsync.ts:76</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/pipeAsync.ts#L76">pipeAsync.ts:76</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -586,7 +667,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/pipeAsync.ts#L83">pipeAsync.ts:83</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/pipeAsync.ts#L83">pipeAsync.ts:83</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -651,7 +732,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/pipeAsync.ts#L91">pipeAsync.ts:91</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/pipeAsync.ts#L91">pipeAsync.ts:91</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -722,7 +803,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/pipeAsync.ts#L100">pipeAsync.ts:100</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/pipeAsync.ts#L100">pipeAsync.ts:100</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -808,7 +889,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/sync.ts#L160">sync.ts:160</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/sync.ts#L160">sync.ts:160</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -906,7 +987,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/result.ts#L18">result.ts:18</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/result.ts#L18">result.ts:18</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -940,9 +1021,14 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/sync.ts#L183">sync.ts:183</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/collection.ts#L30">collection.ts:30</a></li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Find and return the first ok(data) in the collection. If there are no Ok values, return error(null)</p>
+								</div>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -969,7 +1055,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/result.ts#L32">result.ts:32</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/result.ts#L32">result.ts:32</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1002,7 +1088,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/result.ts#L25">result.ts:25</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/result.ts#L25">result.ts:25</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1035,7 +1121,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/result.ts#L39">result.ts:39</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/result.ts#L39">result.ts:39</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1068,7 +1154,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/sync.ts#L88">sync.ts:88</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/sync.ts#L88">sync.ts:88</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1133,7 +1219,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/sync.ts#L14">sync.ts:14</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/sync.ts#L14">sync.ts:14</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1198,7 +1284,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/result.ts#L12">result.ts:12</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/result.ts#L12">result.ts:12</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1242,7 +1328,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/pipeAsync.ts#L4">pipeAsync.ts:4</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/pipeAsync.ts#L4">pipeAsync.ts:4</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1274,7 +1360,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/pipeAsync.ts#L10">pipeAsync.ts:10</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/pipeAsync.ts#L10">pipeAsync.ts:10</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1312,7 +1398,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/pipeAsync.ts#L17">pipeAsync.ts:17</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/pipeAsync.ts#L17">pipeAsync.ts:17</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1356,7 +1442,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/pipeAsync.ts#L25">pipeAsync.ts:25</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/pipeAsync.ts#L25">pipeAsync.ts:25</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1406,7 +1492,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/pipeAsync.ts#L34">pipeAsync.ts:34</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/pipeAsync.ts#L34">pipeAsync.ts:34</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1462,7 +1548,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/pipeAsync.ts#L44">pipeAsync.ts:44</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/pipeAsync.ts#L44">pipeAsync.ts:44</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1533,7 +1619,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/async.ts#L58">async.ts:58</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/async.ts#L60">async.ts:60</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1571,7 +1657,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/sync.ts#L139">sync.ts:139</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/sync.ts#L139">sync.ts:139</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1616,7 +1702,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/sync.ts#L65">sync.ts:65</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/sync.ts#L65">sync.ts:65</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1661,7 +1747,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/sync.ts#L179">sync.ts:179</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/sync.ts#L179">sync.ts:179</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1690,7 +1776,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/66d931b/src/async.ts#L67">async.ts:67</a></li>
+									<li>Defined in <a href="https://github.com/will-wow/result-async/blob/98d2689/src/async.ts#L69">async.ts:69</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1761,6 +1847,9 @@
 						<a href="globals.html#resultp" class="tsd-kind-icon">ResultP</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#allok" class="tsd-kind-icon">all<wbr>Ok</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#asyncchainerror" class="tsd-kind-icon">async<wbr>Chain<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
@@ -1771,6 +1860,9 @@
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#chainok" class="tsd-kind-icon">chain<wbr>Ok</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#collectoks" class="tsd-kind-icon">collect<wbr>Oks</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#createpipeasync" class="tsd-kind-icon">create<wbr>Pipe<wbr>Async</a>

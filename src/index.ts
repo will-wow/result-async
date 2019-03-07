@@ -1,4 +1,5 @@
-export * from "./sync";
 export * from "./async";
-export * from "./result";
+export * from "./collection";
 export * from "./pipeAsync";
+export * from "./result";
+export * from "./sync";

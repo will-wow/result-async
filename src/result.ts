@@ -54,15 +54,17 @@ class OkResult<T> {
     return `{ok: ${this.ok}}`;
   }
 
-  "fantasy-land/map"<U>(f: (ok: T) => U): U {
-    return f(this.ok);
+  map<U>(f: (ok: T) => U): OkResult<U> {
+    return ok(f(this.ok));
   }
+
+  "fantasy-land/map" = this.map;
 }
 
 /**
  * Represents the result of an unsuccessful operation.
  * Create one with Result.ok(data)
- * Fantasy-land: Functor
+ * Fantasy-land Functor
  */
 class ErrorResult<T> {
   constructor(public error: T) {}
@@ -71,7 +73,9 @@ class ErrorResult<T> {
     return `{error: ${this.error}}`;
   }
 
-  "fantasy-land/map"(f: (ok: any) => any): T {
-    return f(this.error);
+  map(_f: (ok: any) => any): ErrorResult<T> {
+    return this;
   }
+
+  "fantasy-land/map" = this.map;
 }

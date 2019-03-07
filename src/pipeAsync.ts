@@ -118,6 +118,6 @@ export function createPipeAsync<
 
 export function createPipeAsync(...fs: AsyncUnary<any, any>[]) {
   return async (start: any) => {
-    (pipeAsync as any)(start, ...fs);
+    return (pipeAsync as any)(start, ...fs);
   };
 }

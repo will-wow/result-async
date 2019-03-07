@@ -1,9 +1,10 @@
 # Result-Async
 
-<img width="80" height="80" src="./logo/logo.png" alt="logo" align="right" />
+<img width="80" height="80" src="./assets/images/logo.png" alt="logo" align="right" />
 
 A library for handling errors with types and without exceptions - even asynchronous ones
 
+[![CircleCI](https://circleci.com/gh/will-wow/result-async.svg?style=svg)](https://circleci.com/gh/will-wow/result-async)
 [![npm package](https://img.shields.io/npm/v/result-async.svg)](https://www.npmjs.com/package/result-async)
 [![David Dependancy Status](https://david-dm.org/will-wow/result-async.svg)](https://david-dm.org/will-wow/result-async)
 
