@@ -55,7 +55,7 @@ pipeAsync(
 );
 ```
 
-See [the docs](./docs) for the full API documentation.
+See [the docs](https://github.com/will-wow/result-async) for the full API documentation.
 
 ## Typescript
 
