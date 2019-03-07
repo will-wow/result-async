@@ -10,7 +10,7 @@
   "scripts": {
     "build": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "docs": "typedoc && cp -R logo docs",
+    "docs": "typedoc && cp -R assets/* docs/assets/ && cp favicon.ico docs",
     "prepare": "npm run build",
     "prepublishOnly": "npm test && npm run lint",
     "test": "jest",

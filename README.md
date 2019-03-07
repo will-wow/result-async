@@ -1,6 +1,6 @@
 # Result-Async
 
-<img width="80" height="80" src="./logo/logo.png" alt="logo" align="right" />
+<img width="80" height="80" src="./assets/images/logo.png" alt="logo" align="right" />
 
 A library for handling errors with types and without exceptions - even asynchronous ones
 
