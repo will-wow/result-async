@@ -4,6 +4,9 @@
 
 A library for handling errors with types and without exceptions - even asynchronous ones
 
+[![npm package](https://img.shields.io/npm/v/result-async.svg)](https://www.npmjs.com/package/result-async)
+[![David Dependancy Status](https://david-dm.org/will-wow/result-async.svg)](https://david-dm.org/will-wow/result-async)
+
 ## Install
 
 ```bash

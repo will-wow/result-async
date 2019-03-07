@@ -2849,11 +2849,6 @@ regex-not@^1.0.0, regex-not@^1.0.2:
     extend-shallow "^3.0.2"
     safe-regex "^1.1.0"
 
-remeda@0.0.9:
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/remeda/-/remeda-0.0.9.tgz#6e7109bc5567ac016511fe9834b2eb56a9c299e2"
-  integrity sha512-sCe5HMzRi/WqBQwYpbbjCxwmvEVeJDFI1zhNUtjuKV/df0E1bUAxc0yEXW0jD9wkQtHssAA3yinmssdDOhGpnw==
-
 remove-trailing-separator@^1.0.1:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/remove-trailing-separator/-/remove-trailing-separator-1.1.0.tgz#c24bce2a283adad5bc3f58e0d48249b92379d8ef"
