@@ -53,7 +53,7 @@ export function pipeAsync<In, Out1, Out2, Out3, Out4, Out5, Out6, OutLast>(
 ): Promise<OutLast>;
 
 export async function pipeAsync(start: any, ...fs: any) {
-  let acc: any = start;
+  let acc: any = await start;
 
   for (const i in fs) {
     acc = await fs[i](acc);

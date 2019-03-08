@@ -11,7 +11,7 @@ import { Result, ok, error, isOk, isError } from "./result";
  * @param f - the function to run on the ok data
  * @param result - The result to match against
  */
-export function mapOk<OkData, ErrorMessage, OkOutput>(
+export function ifOk<OkData, ErrorMessage, OkOutput>(
   f: (ok: OkData) => OkOutput
 ) {
   return (
@@ -23,6 +23,22 @@ export function mapOk<OkData, ErrorMessage, OkOutput>(
 
     return ok(f(result.ok));
   };
+}
+
+/**
+ * Runs a function for side effects on the payload, only if the result is Ok.
+ *
+ * @param f - the function to run on the ok data
+ * @param result - The result to match against
+ * @returns The original result
+ */
+export function okSideEffect<OkData, ErrorMessage>(
+  f: (ok: OkData) => any
+): (result: Result<OkData, ErrorMessage>) => Result<OkData, ErrorMessage> {
+  return ifOk((data: OkData) => {
+    f(data);
+    return data;
+  });
 }
 
 /**
@@ -85,7 +101,7 @@ export function replaceOk<OkData, ErrorMessage, OkOutput>(newData: OkOutput) {
  * @param f - the function to run on the ok data
  * @param result - The result to match against
  */
-export function mapError<OkData, ErrorMessage, ErrorOutput>(
+export function ifError<OkData, ErrorMessage, ErrorOutput>(
   f: (error: ErrorMessage) => ErrorOutput
 ) {
   return (
@@ -97,6 +113,22 @@ export function mapError<OkData, ErrorMessage, ErrorOutput>(
 
     return error(f(result.error));
   };
+}
+
+/**
+ * Runs a function for side effects on the payload, only if the result is Error.
+ *
+ * @param f - the function to run on the error message
+ * @param result - The result to match against
+ * @returns The original result
+ */
+export function errorSideEffect<OkData, ErrorMessage>(
+  f: (error: ErrorMessage) => any
+): (result: Result<OkData, ErrorMessage>) => Result<OkData, ErrorMessage> {
+  return ifError((message: ErrorMessage) => {
+    f(message);
+    return message;
+  });
 }
 
 /**
@@ -151,22 +183,22 @@ export function replaceError<OkData, ErrorMessage, ErrorOutput>(
 }
 
 /**
- * Takes a result, and runs either an ifOk or ifError function on it.
- * @param ifOk - Function to run if the result is an Ok
- * @param ifError - Function to run if the result is an Error
+ * Takes a result, and runs either an onOk or onError function on it.
+ * @param onOk - Function to run if the result is an Ok
+ * @param onError - Function to run if the result is an Error
  * @param result - Result to match against
  * @returns The return value of the function that gets run.
  */
 export function either<OkData, ErrorMessage, OkOutput, ErrorOutput>(
   result: Result<OkData, ErrorMessage>,
-  ifOk: (ok: OkData) => OkOutput,
-  ifError: (error: ErrorMessage) => ErrorOutput
+  onOk: (ok: OkData) => OkOutput,
+  onError: (error: ErrorMessage) => ErrorOutput
 ): OkOutput | ErrorOutput {
   if (isOk(result)) {
-    return ifOk(result.ok);
+    return onOk(result.ok);
   }
   if (isError(result)) {
-    return ifError(result.error);
+    return onError(result.error);
   }
   throw new Error("invalid result");
 }
@@ -178,4 +210,26 @@ export function either<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  */
 export function resultToBoolean(result: Result<any, any>): boolean {
   return isOk(result) ? true : false;
+}
+
+/**
+ * Get the error message from a result. If it's an Ok, throw an error.
+ * @returns the ok data
+ */
+export function assertOk<OkData>(result: Result<OkData, any>): OkData {
+  if (isError(result)) throw new Error(result.error);
+
+  return result.ok;
+}
+
+/**
+ * Get the error message from a result. If it's an Ok, throw an error.
+ * @returns the error message
+ */
+export function assertError<ErrorMessage>(
+  result: Result<any, ErrorMessage>
+): ErrorMessage {
+  if (isOk(result)) throw new Error(result.ok);
+
+  return result.error;
 }
