@@ -58,7 +58,9 @@ class OkResult<T> {
     return ok(f(this.ok));
   }
 
-  "fantasy-land/map" = this.map;
+  "fantasy-land/map"<U>(f: (ok: T) => U): OkResult<U> {
+    return ok(f(this.ok));
+  }
 }
 
 /**
@@ -77,5 +79,7 @@ class ErrorResult<T> {
     return this;
   }
 
-  "fantasy-land/map" = this.map;
+  "fantasy-land/map"(f: (ok: any) => any): ErrorResult<T> {
+    return this.map(f);
+  }
 }

@@ -1,10 +1,12 @@
 import { ok, error, Result } from "./result";
 import {
+  assertError,
+  assertOk,
   chainError,
   chainOk,
   either,
-  mapError,
-  mapOk,
+  ifError,
+  ifOk,
   replaceError,
   replaceOk,
   resultToBoolean
@@ -24,10 +26,10 @@ type TestCase = [
 
 describe("mappers", () => {
   const testCases: TestCase[] = [
-    [ok(1), mapOk, add1, ok(2)],
-    [error(1), mapOk, add1, error(1)],
-    [ok(1), mapError, add1, ok(1)],
-    [error(1), mapError, add1, error(2)],
+    [ok(1), ifOk, add1, ok(2)],
+    [error(1), ifOk, add1, error(1)],
+    [ok(1), ifError, add1, ok(1)],
+    [error(1), ifError, add1, error(2)],
     [ok(1), chainOk, add1Ok, ok(2)],
     [ok(1), chainOk, add1Error, error(2)],
     [error(1), chainOk, add1Ok, error(1)],
@@ -80,6 +82,26 @@ describe("sync", () => {
     it("raises on invalid input", () => {
       const badResult: any = { foo: "bar" };
       expect(() => either(badResult, add1, subtract1)).toThrow();
+    });
+  });
+
+  describe("assertOk", () => {
+    it("returns an ok payload", () => {
+      expect(assertOk(ok(1))).toBe(1);
+    });
+
+    it("throws on an error", () => {
+      expect(() => assertOk(error("bad"))).toThrow("bad");
+    });
+  });
+
+  describe("assertError", () => {
+    it("returns an error message", () => {
+      expect(assertError(error(1))).toBe(1);
+    });
+
+    it("throws on an error", () => {
+      expect(() => assertError(ok("good"))).toThrow("good");
     });
   });
 });

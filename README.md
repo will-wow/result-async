@@ -6,7 +6,7 @@ A library for handling errors with types and without exceptions - even asynchron
 
 [![npm package](https://img.shields.io/npm/v/result-async.svg)](https://www.npmjs.com/package/result-async)
 [![CircleCI](https://circleci.com/gh/will-wow/result-async.svg?style=svg)](https://circleci.com/gh/will-wow/result-async)
-[![David Dependancy Status](https://david-dm.org/will-wow/result-async.svg)](https://david-dm.org/will-wow/result-async)
+[![David Dependency Status](https://david-dm.org/will-wow/result-async.svg)](https://david-dm.org/will-wow/result-async)
 [![codecov](https://codecov.io/gh/will-wow/result-async/branch/master/graph/badge.svg)](https://codecov.io/gh/will-wow/result-async)
 
 ## Install
@@ -24,7 +24,7 @@ yarn add result-async
 Then import the functions and (in TypeScript) types you need:
 
 ```typescript
-import { ok, mapOk, asyncChainOk, Result } from "result-async";
+import { ok, ifOk, asyncChainOk, Result } from "result-async";
 ```
 
 ## Examples
@@ -53,17 +53,17 @@ And you can pipe functions - both synchronous and asynchronous ones - together f
 import {
   resultify,
   asyncChainOk,
-  mapError,
-  mapOk,
+  ifError,
+  ifOk,
   chainError
 } from "result-async";
 
 pipeAsync(
   someData,
   resultify(someAsyncFunction),
-  mapOk(transformData),
+  ifOk(transformData),
   asyncChainOk(anotherAsyncFunction),
-  mapError(logError),
+  ifError(logError),
   chainError(tryToRescueError)
 );
 ```
@@ -101,6 +101,37 @@ function(result: Result<number, string>) {
     result.ok + 1
   }
 }
+```
+
+## Testing with Result-Async
+
+If you're using a library like [Jest](https://github.com/facebook/jest) for testing, you can generally follow your testing library's advice for [testing asynchronous code](https://jest-bot.github.io/jest/docs/asynchronous.html#content).
+
+Unlike with standard promises, you don't have to worry about rejected promises throwing errors.
+
+You'll probably want to test if your calls succeed or fail. If you want to check both the result and payload, try matching against another `result`:
+
+```javascript
+import { ok } from "result-async";
+
+it("should be fine", async () => {
+  expect(await myResultyFunction()).toEqual(ok("all is well"));
+});
+```
+
+If you only want to check if a call succeeded for failed, try just checking for the presence of "ok" or "error" for a nice readable test:
+
+```javascript
+it("should be fine", async () => {
+  expect(await myResultyFunction()).toHaveProperty("ok");
+});
+```
+
+For more complicated checks you can use `assertOk/Error` to throw an error if the
+result isn't what you expect, and otherwise extract the payload for further testing. For example:
+
+```javascript
+expect(assertOk(await myResultyFunction())).toContain("is well");
 ```
 
 ## Background
@@ -159,3 +190,9 @@ either(
   msg => doSomethingElse(msg)
 );
 ```
+
+### What about Fantasy-Land
+
+If you come from a Haskell-y background, you might be saying, "hey, `Result` is just an `Either` type, and `ifOk` is just `map`". You're right! And if you're looking for more abstract functional programming, you may be interested in libraries like [Sanctuary](https://github.com/sanctuary-js/sanctuary) or [Folktalk](https://github.com/origamitower/folktale), which provide a Fantasy-Land compatible Either and Result types, respectively. [Fluture](https://github.com/fluture-js/Fluture) is also a great tool for Fantasy-Land compatible asynchronous programming.
+
+But if your team isn't ready that all that, think of `Result-Async` like a gateway drug for full ADT-style programming. It lets you write composable, functional programs, but with functions names that are trying to be friendlier to people who don't think in monands.
