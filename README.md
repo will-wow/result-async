@@ -127,11 +127,11 @@ it("should be fine", async () => {
 });
 ```
 
-For more complicated checks you can use `assertOk/Error` to throw an error if the
+For more complicated checks you can use `okOrThrow/Error` to throw an error if the
 result isn't what you expect, and otherwise extract the payload for further testing. For example:
 
 ```javascript
-expect(assertOk(await myResultyFunction())).toContain("is well");
+expect(okOrThrow(await myResultyFunction())).toContain("is well");
 ```
 
 ## Background

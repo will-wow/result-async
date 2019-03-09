@@ -1,7 +1,7 @@
 import { ok, error, Result } from "./result";
 import {
-  assertError,
-  assertOk,
+  errorOrThrow,
+  okOrThrow,
   chainError,
   chainOk,
   either,
@@ -85,23 +85,23 @@ describe("sync", () => {
     });
   });
 
-  describe("assertOk", () => {
+  describe("okOrThrow", () => {
     it("returns an ok payload", () => {
-      expect(assertOk(ok(1))).toBe(1);
+      expect(okOrThrow(ok(1))).toBe(1);
     });
 
     it("throws on an error", () => {
-      expect(() => assertOk(error("bad"))).toThrow("bad");
+      expect(() => okOrThrow(error("bad"))).toThrow("bad");
     });
   });
 
-  describe("assertError", () => {
+  describe("errorOrThrow", () => {
     it("returns an error message", () => {
-      expect(assertError(error(1))).toBe(1);
+      expect(errorOrThrow(error(1))).toBe(1);
     });
 
     it("throws on an error", () => {
-      expect(() => assertError(ok("good"))).toThrow("good");
+      expect(() => errorOrThrow(ok("good"))).toThrow("good");
     });
   });
 });

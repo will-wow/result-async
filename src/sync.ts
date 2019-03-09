@@ -215,8 +215,19 @@ export function resultToBoolean(result: Result<any, any>): boolean {
 /**
  * Get the error message from a result. If it's an Ok, throw an error.
  * @returns the ok data
+ *
+ * @example
+ * ```typescript
+ * const okResult = ok("good");
+ * okOrThrow(result);
+ * // "good"
+ *
+ * const errorResult = error("bad");
+ * okOrThrow(result);
+ * // throws new Error("bad")
+ * ```
  */
-export function assertOk<OkData>(result: Result<OkData, any>): OkData {
+export function okOrThrow<OkData>(result: Result<OkData, any>): OkData {
   if (isError(result)) throw new Error(result.error);
 
   return result.ok;
@@ -225,8 +236,19 @@ export function assertOk<OkData>(result: Result<OkData, any>): OkData {
 /**
  * Get the error message from a result. If it's an Ok, throw an error.
  * @returns the error message
+ * 
+ * @example
+ * ```typescript
+ * const errorResult = error("bad");
+ * errorOrThrow(result);
+ * // "bad"
+ * 
+ * const okResult = ok("good");
+ * errorOrThrow(result);
+ * // throws new Error("good")
+ * ```
  */
-export function assertError<ErrorMessage>(
+export function errorOrThrow<ErrorMessage>(
   result: Result<any, ErrorMessage>
 ): ErrorMessage {
   if (isOk(result)) throw new Error(result.ok);
