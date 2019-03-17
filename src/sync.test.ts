@@ -26,17 +26,9 @@ type TestCase = [
 
 describe("examples", () => {
   it("runs the ifOk example", () => {
-    function positiveAdder(n: number) {
-      return n < 0 ? error("only positive") : ok(n + 1);
-    }
-
     function anyAdder(n: number) {
       return n + 1;
     }
-
-    expect(ifOk(positiveAdder)(ok(1))).toEqual(ok(2));
-    expect(ifOk(positiveAdder)(error("bad"))).toEqual(error("bad"));
-    expect(ifOk(positiveAdder)(ok(-1))).toEqual(error("only positive"));
 
     expect(ifOk(anyAdder)(ok(1))).toEqual(ok(2));
     expect(ifOk(anyAdder)(error("bad"))).toEqual(error("bad"));
@@ -44,16 +36,28 @@ describe("examples", () => {
   });
 
   it("runs the ifError example", () => {
-    const rescueNotFound = ifError((errorMessage: string) =>
-      errorMessage === "not found" ? ok("unknown") : error(errorMessage)
-    );
-
     const normalizeErrorCase = ifError((message: string) =>
       message.toLowerCase()
     );
 
     expect(normalizeErrorCase(ok("alice"))).toEqual(ok("alice"));
     expect(normalizeErrorCase(error("NOT FOUND"))).toEqual(error("not found"));
+  });
+
+  it("runs the chainOk example", () => {
+    function positiveAdder(n: number) {
+      return n < 0 ? error("only positive") : ok(n + 1);
+    }
+
+    expect(chainOk(positiveAdder)(ok(1))).toEqual(ok(2));
+    expect(chainOk(positiveAdder)(error("bad"))).toEqual(error("bad"));
+    expect(chainOk(positiveAdder)(ok(-1))).toEqual(error("only positive"));
+  });
+
+  it("runs the chainError example", () => {
+    const rescueNotFound = chainError((errorMessage: string) =>
+      errorMessage === "not found" ? ok("unknown") : error(errorMessage)
+    );
 
     expect(rescueNotFound(ok("alice"))).toEqual(ok("alice"));
     expect(rescueNotFound(error("not found"))).toEqual(ok("unknown"));
