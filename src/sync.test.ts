@@ -2,11 +2,11 @@ import { ok, error, Result } from "./result";
 import {
   errorOrThrow,
   okOrThrow,
-  chainError,
-  chainOk,
   either,
   ifError,
   ifOk,
+  chainOk,
+  chainError,
   replaceError,
   replaceOk,
   resultToBoolean
@@ -24,18 +24,60 @@ type TestCase = [
   Result<any, any>
 ];
 
+describe("examples", () => {
+  it("runs the ifOk example", () => {
+    function positiveAdder(n: number) {
+      return n < 0 ? error("only positive") : ok(n + 1);
+    }
+
+    function anyAdder(n: number) {
+      return n + 1;
+    }
+
+    expect(ifOk(positiveAdder)(ok(1))).toEqual(ok(2));
+    expect(ifOk(positiveAdder)(error("bad"))).toEqual(error("bad"));
+    expect(ifOk(positiveAdder)(ok(-1))).toEqual(error("only positive"));
+
+    expect(ifOk(anyAdder)(ok(1))).toEqual(ok(2));
+    expect(ifOk(anyAdder)(error("bad"))).toEqual(error("bad"));
+    expect(ifOk(anyAdder)(ok(-1))).toEqual(ok(0));
+  });
+
+  it("runs the ifError example", () => {
+    const rescueNotFound = ifError((errorMessage: string) =>
+      errorMessage === "not found" ? ok("unknown") : error(errorMessage)
+    );
+
+    const normalizeErrorCase = ifError((message: string) =>
+      message.toLowerCase()
+    );
+
+    expect(normalizeErrorCase(ok("alice"))).toEqual(ok("alice"));
+    expect(normalizeErrorCase(error("NOT FOUND"))).toEqual(error("not found"));
+
+    expect(rescueNotFound(ok("alice"))).toEqual(ok("alice"));
+    expect(rescueNotFound(error("not found"))).toEqual(ok("unknown"));
+    expect(rescueNotFound(error("network error"))).toEqual(
+      error("network error")
+    );
+  });
+});
+
 describe("mappers", () => {
   const testCases: TestCase[] = [
+    // map
     [ok(1), ifOk, add1, ok(2)],
     [error(1), ifOk, add1, error(1)],
     [ok(1), ifError, add1, ok(1)],
     [error(1), ifError, add1, error(2)],
+    // chain
     [ok(1), chainOk, add1Ok, ok(2)],
     [ok(1), chainOk, add1Error, error(2)],
     [error(1), chainOk, add1Ok, error(1)],
     [ok(1), chainError, add1Ok, ok(1)],
     [error(1), chainError, add1Ok, ok(2)],
     [error(1), chainError, add1Error, error(2)],
+    // replace
     [ok(1), replaceOk, "good", ok("good")],
     [error(1), replaceOk, "good", error(1)],
     [ok(1), replaceError, "bad", ok(1)],

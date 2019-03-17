@@ -1,4 +1,128 @@
-import { Result, ok, error, isOk, isError } from "./result";
+import { Result, ok, error, isOk, isError, isResult } from "./result";
+
+/**
+ * Transforms a successful result, and passes through a failed result.
+ *
+ * Takes a mapping function, then a result.
+ * If the result is an Ok, applies the function to the data.
+ * If the result is an Error, passes the Result through unchanged.
+ *
+ * The function can either return a result for operations that could fail,
+ * or a value to wrap in an ok result for operations that will always succeed.
+ * 
+ * Aka: a typesafe combination of map and chain/flatMap.
+ 
+ * @param f - the function to run on the ok data
+ * @param result - The result to match against
+ * @returns - The Result from function f or the Error
+ * 
+ * @example 
+ * 
+ * ```javascript
+ * function positiveAdder(n) { 
+ *   return n < 0 ? error("only positive") : ok(n + 1);
+ * }
+ * 
+ * function anyAdder(n) { 
+ *   return n + 1
+ * }
+ * 
+ * ifOk(positiveAdder)(ok(1)) // ok(2)
+ * ifOk(positiveAdder)(error("bad")) // error("bad")
+ * ifOk(positiveAdder)(ok(-1)) // error("only positive")
+ * 
+ * ifOk(anyAdder)(ok(1)) // ok(2)
+ * ifOk(anyAdder)(error("bad")) // error("bad")
+ * ifOk(anyAdder)(ok(-1)) // ok(0)
+ * ```
+ */
+export function iifOk<OkData, OkOutput, ErrorOutput, FunctionResult>(
+  f: (ok: OkData) => FunctionResult & (OkOutput | Result<OkOutput, ErrorOutput>)
+) {
+  return function<
+    ErrorMessage,
+    ReturnResult extends FunctionResult extends Result<any, any>
+      ? Result<OkOutput, ErrorOutput | ErrorMessage>
+      : Result<FunctionResult, ErrorMessage>
+  >(
+    result: Result<OkData, ErrorMessage>
+  ): FunctionResult extends Result<any, any>
+    ? Result<OkOutput, ErrorOutput | ErrorMessage>
+    : Result<FunctionResult, ErrorMessage> {
+    if (isError(result)) {
+      return result as ReturnResult;
+    }
+
+    const newValue: Result<OkOutput, ErrorOutput> | OkOutput = f(result.ok);
+
+    if (isResult(newValue)) {
+      return newValue as ReturnResult;
+    }
+    return ok(newValue) as ReturnResult;
+  };
+}
+
+/**
+ * Transforms a failed result, and passes through a successful result.
+ *
+ * Takes a mapping function, then a result.
+ * If the result is an Error, applies the function to the data.
+ * If the result is an Ok, passes the Result through unchanged.
+ *
+ * The function can either return a result for operations that could be rescued,
+ * or a new value to wrap in an error result to change the error message.
+ * 
+ * Aka: a typesafe combination of map and chain/flatMap.
+ 
+ * @param f - the function to run on the error data
+ * @param result - The result to match against
+ * @returns - The Result from function f or the Ok result
+ * 
+ * @example 
+ * 
+ * ```javascript
+ * const rescueNotFound = ifError(errorMessage =>  
+ *   errorMessage === "not found" ? ok("unknown") : error(errorMessage)
+ * );
+ * 
+ * 
+ * const normalizeErrorCase = ifError(message => 
+ *   message.toLowerCase()
+ * )
+ * 
+ * normalizeErrorCase(ok("alice")) // ok("alice")
+ * normalizeErrorCase(error("NOT FOUND")) // error("not found")
+ * 
+ * rescueNotFound(ok("alice")) // ok("alice")
+ * rescueNotFound(error("not found")) // ok("unknown")
+ * rescueNotFound(error("network error")) // error("network error")
+ * ```
+ */
+export function iifError<ErrorMessage, OkOutput, ErrorOutput, FunctionResult>(
+  f: (
+    error: ErrorMessage
+  ) => FunctionResult & (ErrorOutput | Result<OkOutput, ErrorOutput>)
+) {
+  return function<
+    OkData,
+    ReturnResult extends FunctionResult extends Result<any, any>
+      ? Result<OkData | OkOutput, ErrorOutput>
+      : Result<OkData, FunctionResult>
+  >(result: Result<OkData, ErrorMessage>): ReturnResult {
+    if (isOk(result)) {
+      return result as ReturnResult;
+    }
+
+    const newValue: Result<OkOutput, ErrorOutput> | ErrorOutput = f(
+      result.error
+    );
+
+    if (isResult(newValue)) {
+      return newValue as ReturnResult;
+    }
+    return error(newValue) as ReturnResult;
+  };
+}
 
 /**
  * Edits a value that's wrapped in an {ok: data}
