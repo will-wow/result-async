@@ -29,6 +29,17 @@ import { ok, ifOk, asyncChainOk, Result } from "result-async";
 
 ## Examples
 
+### Full Example
+
+```typescript
+const fetchArticleCommentIds = articleId =>
+  fetch(`http://example.com/articles${articleId}`);
+
+const fetchCommentData = commentId => pipeAsync(someData);
+```
+
+### Techniques
+
 You can react to errors inline:
 
 ```typescript

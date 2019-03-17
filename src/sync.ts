@@ -12,8 +12,6 @@ import { Result, ok, error, isOk, isError } from "./result";
  * @param f - the function to run on the ok data
  * @param result - The result to match against
  *
- * @example
- *
  * ```javascript
  * function add1(n) {
  *   return n + 1
@@ -52,8 +50,6 @@ export function ifOk<OkData, ErrorMessage, OkOutput>(
  * @param result - The result to match against
  * @returns - The Result from function f or the Ok result
  *
- * @example
- *
  * ```javascript
  * const normalizeErrorCase = ifError(message =>
  *   message.toLowerCase()
@@ -90,8 +86,6 @@ export function ifError<OkData, ErrorMessage, ErrorOutput>(
  *
  * @param f - the function to run on the ok data
  * @param result - The result to match against
- *
- * @example
  *
  * ```javascript
  * function positiveAdder(n) {
@@ -130,8 +124,6 @@ export function chainOk<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @param result - The result to match against
  * @returns - The Result from function f or the Ok result
  *
- * @example
- *
  * ```javascript
  * const rescueNotFound = ifError(errorMessage =>
  *   errorMessage === "not found" ? ok("unknown") : error(errorMessage)
@@ -162,14 +154,21 @@ export function chainError<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @param f - the function to run on the ok data
  * @param result - The result to match against
  * @returns The original result
+ *
+ * ```javascript
+ * okSideEffect(console.log, ok("hi")) // Logs "hi"
+ * okSideEffect(console.log, error(1)) // No log
+ * ```
  */
-export function okSideEffect<OkData, ErrorMessage>(
-  f: (ok: OkData) => any
-): (result: Result<OkData, ErrorMessage>) => Result<OkData, ErrorMessage> {
-  return ifOk((data: OkData) => {
-    f(data);
-    return data;
-  });
+export function okSideEffect<OkData, ErrorMessage>(f: (ok: OkData) => any) {
+  return function(
+    result: Result<OkData, ErrorMessage>
+  ): Result<OkData, ErrorMessage> {
+    if (isOk(result)) {
+      f(result.ok);
+    }
+    return result;
+  };
 }
 
 /**
@@ -178,14 +177,23 @@ export function okSideEffect<OkData, ErrorMessage>(
  * @param f - the function to run on the error message
  * @param result - The result to match against
  * @returns The original result
+ *
+ * ```javascript
+ * errorSideEffect(console.error)(ok("hi")) // No log
+ * errorSideEffect(console.error)(error(1)) // Logs 1
+ * ```
  */
 export function errorSideEffect<OkData, ErrorMessage>(
-  f: (error: ErrorMessage) => any
-): (result: Result<OkData, ErrorMessage>) => Result<OkData, ErrorMessage> {
-  return ifError((message: ErrorMessage) => {
-    f(message);
-    return message;
-  });
+  f: (ok: ErrorMessage) => any
+) {
+  return function(
+    result: Result<OkData, ErrorMessage>
+  ): Result<OkData, ErrorMessage> {
+    if (isError(result)) {
+      f(result.error);
+    }
+    return result;
+  };
 }
 
 /**
@@ -199,6 +207,10 @@ export function errorSideEffect<OkData, ErrorMessage>(
  * It wraps the return value in an {error: new_message}.
  * @param f - the function to run on the ok data
  * @param result - The result to match against
+ *
+ * ```javascript
+ * replaceOk("fine")(ok(null)) // ok("fine")
+ * ```
  */
 export function replaceOk<OkOutput>(newData: OkOutput) {
   return <ErrorMessage>(
@@ -213,16 +225,19 @@ export function replaceOk<OkOutput>(newData: OkOutput) {
 }
 
 /**
- * Replaces a value that's wrapped in an {error: data}
- * Useful if you don't care about the data, just the fact that previous call failed.
+ * Replaces a message that's wrapped in an `error(message)`
+ * Useful if you don't care about the old message, just the fact that previous call failed.
  *
  * Takes a Result and a mapping function.
  * If the result is an Error, applies the function to the message.
  * If the result is an Ok, passes the Result through unchanged.
  *
- * It wraps the return value in an {error: new_message}.
  * @param f - the function to run on the ok data
  * @param result - The result to match against
+ *
+ * ```javascript
+ * replaceError("something went wrong")(error(null)) // error("something went wrong")
+ * ```
  */
 export function replaceError<ErrorOutput>(newError: ErrorOutput) {
   return <OkData>(result: Result<OkData, any>): Result<OkData, ErrorOutput> => {
@@ -238,12 +253,13 @@ export function replaceError<ErrorOutput>(newError: ErrorOutput) {
  * Get the error message from a result. If it's an Ok, throw an error.
  * @returns the ok data
  *
- * @example
  * ```typescript
  * const okResult = ok("good");
  * okOrThrow(result);
  * // "good"
+ * ```
  *
+ * ```typescript
  * const errorResult = error("bad");
  * okOrThrow(result);
  * // throws new Error("bad")

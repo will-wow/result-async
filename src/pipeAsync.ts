@@ -2,6 +2,32 @@ type UnwrapPromise<T> = T extends Promise<infer U> ? U : T;
 type AsyncUnary<In, Out> = (x: UnwrapPromise<In>) => Out;
 type WrapPromise<T> = T extends Promise<any> ? T : Promise<T>;
 
+/**
+ * Pipe the first argument through a series of transforming functions,
+ * where each function takes the return from the previous one.
+ * Functions either return a promise or a normal value, and will always
+ * receive a non-promise value for their argument.
+ * Similar to Ramda's `pipeP`, but allows non-promise return values, and is not curried.
+ * @param start - The value to start with. May be a promise.
+ * @param fs - The functions to pipe the value through.
+ *             Each function must take a single argument.
+ * @returns the return value of the final function.
+ *
+ * @examples
+ *
+ * ```typescript
+ * const fetchArticleCommentIds = articleId => fetch(`http://example.com/articles${articleId}`)
+ *
+ * pipeAsync(
+ *   someData
+ * )
+ * ```
+ */
+export function pipeAsync<In, Out1, OutLast>(
+  start: In,
+  f2: AsyncUnary<In, OutLast>
+): WrapPromise<OutLast>;
+
 export function pipeAsync<In, Out1, OutLast>(
   start: In,
   f1: AsyncUnary<In, Out1>,
@@ -53,6 +79,84 @@ export function pipeAsync<In, Out1, Out2, Out3, Out4, Out5, Out6, OutLast>(
   f7: AsyncUnary<Out6, OutLast>
 ): WrapPromise<OutLast>;
 
+export function pipeAsync<
+  In,
+  Out1,
+  Out2,
+  Out3,
+  Out4,
+  Out5,
+  Out6,
+  Out7,
+  Out8,
+  OutLast
+>(
+  start: In,
+  f1: AsyncUnary<In, Out1>,
+  f2: AsyncUnary<Out1, Out2>,
+  f3: AsyncUnary<Out2, Out3>,
+  f4: AsyncUnary<Out3, Out4>,
+  f5: AsyncUnary<Out4, Out5>,
+  f6: AsyncUnary<Out5, Out6>,
+  f7: AsyncUnary<Out6, Out7>,
+  f8: AsyncUnary<Out7, Out8>,
+  f9: AsyncUnary<Out8, OutLast>
+): WrapPromise<OutLast>;
+
+export function pipeAsync<
+  In,
+  Out1,
+  Out2,
+  Out3,
+  Out4,
+  Out5,
+  Out6,
+  Out7,
+  Out8,
+  Out9,
+  OutLast
+>(
+  start: In,
+  f1: AsyncUnary<In, Out1>,
+  f2: AsyncUnary<Out1, Out2>,
+  f3: AsyncUnary<Out2, Out3>,
+  f4: AsyncUnary<Out3, Out4>,
+  f5: AsyncUnary<Out4, Out5>,
+  f6: AsyncUnary<Out5, Out6>,
+  f7: AsyncUnary<Out6, Out7>,
+  f8: AsyncUnary<Out7, Out8>,
+  f9: AsyncUnary<Out8, Out9>,
+  f10: AsyncUnary<Out9, OutLast>
+): WrapPromise<OutLast>;
+
+export function pipeAsync<
+  In,
+  Out1,
+  Out2,
+  Out3,
+  Out4,
+  Out5,
+  Out6,
+  Out7,
+  Out8,
+  Out9,
+  Out10,
+  OutLast
+>(
+  start: In,
+  f1: AsyncUnary<In, Out1>,
+  f2: AsyncUnary<Out1, Out2>,
+  f3: AsyncUnary<Out2, Out3>,
+  f4: AsyncUnary<Out3, Out4>,
+  f5: AsyncUnary<Out4, Out5>,
+  f6: AsyncUnary<Out5, Out6>,
+  f7: AsyncUnary<Out6, Out7>,
+  f8: AsyncUnary<Out7, Out8>,
+  f9: AsyncUnary<Out8, Out9>,
+  f10: AsyncUnary<Out9, Out10>,
+  f11: AsyncUnary<Out10, OutLast>
+): WrapPromise<OutLast>;
+
 export async function pipeAsync(start: any, ...fs: any) {
   let acc: any = await start;
 
@@ -63,6 +167,17 @@ export async function pipeAsync(start: any, ...fs: any) {
   return acc;
 }
 
+/**
+ * Set up a pipeline of transforming functions,
+ * where each function takes the return from the previous one.
+ * Functions either return a promise or a normal value, and will always
+ * receive a non-promise value for their argument.
+ * Similar to Ramda's `pipeP`, but allows non-promise return values.
+ * @param fs - The functions to pipe the value through.
+ *             Each function must take a single argument.
+ * @param start - The value to start with. May be a promise.
+ * @returns a function that takes a value, and sends it through the pipeline.
+ */
 export function createPipeAsync<In, Out1, OutLast>(
   f1: AsyncUnary<In, Out1>,
   f2: AsyncUnary<Out1, OutLast>

@@ -53,6 +53,54 @@ export const asyncChainError = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
 };
 
 /**
+ * Runs a function for side effects on the payload, only if the result is Ok.
+ *
+ * @param f - the async function to run on the ok data
+ * @param result - The result to match against
+ * @returns A promise of the the original result
+ *
+ * ```javascript
+ * okSideEffect(console.log, ok("hi")) // Logs "hi"
+ * okSideEffect(console.log, error(1)) // No log
+ * ```
+ */
+export function asyncOkSideEffect<OkData, ErrorMessage>(f: (ok: OkData) => any) {
+  return async function(
+    result: Result<OkData, ErrorMessage>
+  ): ResultP<OkData, ErrorMessage> {
+    if (isOk(result)) {
+      await f(result.ok);
+    }
+    return result;
+  };
+}
+
+/**
+ * Runs a function for side effects on the payload, only if the result is Error. Waits for the side effect to complete before returning.
+ *
+ * @param f - the function to run on the error message
+ * @param result - The result to match against
+ * @returns a promise of the original Result
+ *
+ * ```javascript
+ * errorSideEffect(console.error)(ok("hi")) // No log
+ * errorSideEffect(console.error)(error(1)) // Logs 1
+ * ```
+ */
+export function asyncErrorSideEffect<OkData, ErrorMessage>(
+  f: (ok: ErrorMessage) => any
+) {
+  return async function(
+    result: Result<OkData, ErrorMessage>
+  ): ResultP<OkData, ErrorMessage> {
+    if (isError(result)) {
+      await f(result.error);
+    }
+    return result;
+  };
+}
+
+/**
  * Awaits a promise, and returns a result based on the outcome
  * @param promise
  * @returns Ok if the promise resolved, Error if it was rejected.

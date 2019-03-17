@@ -1,15 +1,26 @@
-import { Result, isOk, isError, ok, error } from "./result";
+import { Result, isOk, ok, error } from "./result";
+import { chainOk } from "./sync";
+import { ResultP, promiseToResult } from "./async";
+import { pipeAsync } from "./pipeAsync";
 
 /**
- * For checking that a collection of computations all succeeded, when you
- * you care about the outcomes.
+ * For checking that a collection of computations all succeeded.
+ * Similar to Promise.all for Results.
  *
  * Takes a list of Results. If all are Ok, collects the data
  * in a list and returns ok([data]).
  * If any are Errors, returns the first error(msg)
  * @param results
+ *
+ * ```javascript
+ * allOk([ok(1), ok(2), ok(3)]) // ok([1, 2, 3])
+ * ```
+ *
+ * ```javascript
+ * allOk([ok(1), error(2), error(3)]) // error(2)
+ * ```
  */
-export function collectOks<OkData, ErrorMessage>(
+export function allOk<OkData, ErrorMessage>(
   results: Result<OkData, ErrorMessage>[]
 ): Result<OkData[], ErrorMessage> {
   return results.reduce((acc: Result<OkData[], ErrorMessage>, result): Result<
@@ -25,23 +36,39 @@ export function collectOks<OkData, ErrorMessage>(
 }
 
 /**
+ * For checking that a collection async computations all succeeded.
+ * Promise.all for Results wrapped in promises.
+ *
+ * Takes a list of Promise<Result>s. If all are Ok, collects the data
+ * in a list and returns ok([data]).
+ * If any are any promise OR result errors, returns the first error(msg)
+ *
+ * ```javascript
+ *
+ * function countComments(postId) {
+ *   return pipeAsync(
+ *     fetchAllComments(postId),
+ *     asyncAllOk,
+ *     ifOk(comments => comments.length)
+ *     replaceError("some comments didn't load")
+ *   )
+ * }
+ * ```
+ */
+export async function asyncAllOk<OkData, ErrorMessage>(
+  promises: ResultP<OkData, ErrorMessage>[]
+): ResultP<OkData[], ErrorMessage> {
+  return pipeAsync(
+    promiseToResult(Promise.all(promises)),
+    chainOk(results => allOk(results))
+  );
+}
+
+/**
  * Find and return the first ok(data) in the collection. If there are no Ok values, return error(null)
  */
 export function firstOk<OkData>(
   results: Result<OkData, any>[]
 ): Result<OkData, null> {
   return results.find(isOk) || error(null);
-}
-
-/**
- * For checking that a collection of computations all succeeded, when
- * you don't care about the outcomes.
- *
- * Takes a list of Results. If all are Ok, returns ok(null). If any are error(msg), returns the first error(msg).
- * @param results
- */
-export function allOk<ErrorData>(
-  results: Result<any, ErrorData>[]
-): Result<null, ErrorData> {
-  return results.find(isError) || ok(null);
 }

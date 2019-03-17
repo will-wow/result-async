@@ -4,6 +4,7 @@
   "rules": {
     "class-name": false,
     "no-unused-variable": [true, { "ignore-pattern": "^_" }],
+    "import-name": false,
     "variable-name": [
       true,
       "ban-keywords",
