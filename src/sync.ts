@@ -17,13 +17,13 @@ import { Result, ok, error, isOk, isError } from "./result";
  *   return n + 1
  * }
  *
- * ifOk(add1)(ok(1)) // ok(2)
- * ifOk(add1)(error("bad")) // error("bad")
- * ifOk(add1)(ok(-1)) // ok(0)
+ * okThen(add1)(ok(1)) // ok(2)
+ * okThen(add1)(error("bad")) // error("bad")
+ * okThen(add1)(ok(-1)) // ok(0)
  * ```
  */
 
-export function ifOk<OkData, ErrorMessage, OkOutput>(
+export function okThen<OkData, ErrorMessage, OkOutput>(
   f: (ok: OkData) => OkOutput
 ) {
   return (
@@ -51,7 +51,7 @@ export function ifOk<OkData, ErrorMessage, OkOutput>(
  * @returns - The Result from function f or the Ok result
  *
  * ```javascript
- * const normalizeErrorCase = ifError(message =>
+ * const normalizeErrorCase = errorThen(message =>
  *   message.toLowerCase()
  * )
  *
@@ -59,7 +59,7 @@ export function ifOk<OkData, ErrorMessage, OkOutput>(
  * normalizeErrorCase(error("NOT FOUND")) // error("not found")
  * ```
  */
-export function ifError<OkData, ErrorMessage, ErrorOutput>(
+export function errorThen<OkData, ErrorMessage, ErrorOutput>(
   f: (error: ErrorMessage) => ErrorOutput
 ) {
   return (
@@ -92,12 +92,12 @@ export function ifError<OkData, ErrorMessage, ErrorOutput>(
  *   return n < 0 ? error("only positive") : ok(n + 1);
  * }
  *
- * ifOk(positiveAdder)(ok(1)) // ok(2)
- * ifOk(positiveAdder)(error("bad")) // error("bad")
- * ifOk(positiveAdder)(ok(-1)) // error("only positive")
+ * okThen(positiveAdder)(ok(1)) // ok(2)
+ * okThen(positiveAdder)(error("bad")) // error("bad")
+ * okThen(positiveAdder)(ok(-1)) // error("only positive")
  * ```
  */
-export function chainOk<OkData, ErrorMessage, OkOutput, ErrorOutput>(
+export function okChain<OkData, ErrorMessage, OkOutput, ErrorOutput>(
   f: (ok: OkData) => Result<OkOutput, ErrorOutput>
 ) {
   return (
@@ -125,7 +125,7 @@ export function chainOk<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @returns - The Result from function f or the Ok result
  *
  * ```javascript
- * const rescueNotFound = ifError(errorMessage =>
+ * const rescueNotFound = errorThen(errorMessage =>
  *   errorMessage === "not found" ? ok("unknown") : error(errorMessage)
  * );
  *
@@ -134,7 +134,7 @@ export function chainOk<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * rescueNotFound(error("network error")) // error("network error")
  * ```
  */
-export function rescueError<OkData, ErrorMessage, OkOutput, ErrorOutput>(
+export function errorRescue<OkData, ErrorMessage, OkOutput, ErrorOutput>(
   f: (ok: ErrorMessage) => Result<OkOutput, ErrorOutput>
 ) {
   return (
@@ -156,11 +156,11 @@ export function rescueError<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @returns The original result
  *
  * ```javascript
- * doOnOk(console.log, ok("hi")) // Logs "hi"
- * doOnOk(console.log, error(1)) // No log
+ * okDo(console.log, ok("hi")) // Logs "hi"
+ * okDo(console.log, error(1)) // No log
  * ```
  */
-export function doOnOk<OkData, ErrorMessage>(f: (ok: OkData) => any) {
+export function okDo<OkData, ErrorMessage>(f: (ok: OkData) => any) {
   return function(
     result: Result<OkData, ErrorMessage>
   ): Result<OkData, ErrorMessage> {
@@ -179,11 +179,11 @@ export function doOnOk<OkData, ErrorMessage>(f: (ok: OkData) => any) {
  * @returns The original result
  *
  * ```javascript
- * doOnError(console.error)(ok("hi")) // No log
- * doOnError(console.error)(error(1)) // Logs 1
+ * errorDo(console.error)(ok("hi")) // No log
+ * errorDo(console.error)(error(1)) // Logs 1
  * ```
  */
-export function doOnError<OkData, ErrorMessage>(
+export function errorDo<OkData, ErrorMessage>(
   f: (ok: ErrorMessage) => any
 ) {
   return function(
@@ -209,10 +209,10 @@ export function doOnError<OkData, ErrorMessage>(
  * @param result - The result to match against
  *
  * ```javascript
- * replaceOk("fine")(ok(null)) // ok("fine")
+ * okReplace("fine")(ok(null)) // ok("fine")
  * ```
  */
-export function replaceOk<OkOutput>(newData: OkOutput) {
+export function okReplace<OkOutput>(newData: OkOutput) {
   return <ErrorMessage>(
     result: Result<any, ErrorMessage>
   ): Result<OkOutput, ErrorMessage> => {
@@ -236,10 +236,10 @@ export function replaceOk<OkOutput>(newData: OkOutput) {
  * @param result - The result to match against
  *
  * ```javascript
- * replaceError("something went wrong")(error(null)) // error("something went wrong")
+ * errorReplace("something went wrong")(error(null)) // error("something went wrong")
  * ```
  */
-export function replaceError<ErrorOutput>(newError: ErrorOutput) {
+export function errorReplace<ErrorOutput>(newError: ErrorOutput) {
   return <OkData>(result: Result<OkData, any>): Result<OkData, ErrorOutput> => {
     if (isOk(result)) {
       return result;

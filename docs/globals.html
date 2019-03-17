@@ -86,8 +86,8 @@
 								<li class="tsd-kind-function"><a href="globals.html#iserror" class="tsd-kind-icon">is<wbr>Error</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#isok" class="tsd-kind-icon">is<wbr>Ok</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#isresult" class="tsd-kind-icon">is<wbr>Result</a></li>
-								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#ifError" class="tsd-kind-icon">map<wbr>Error</a></li>
-								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#ifOk" class="tsd-kind-icon">map<wbr>Ok</a></li>
+								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#errorThen" class="tsd-kind-icon">map<wbr>Error</a></li>
+								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#okThen" class="tsd-kind-icon">map<wbr>Ok</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#ok" class="tsd-kind-icon">ok</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#pipeasync" class="tsd-kind-icon">pipe<wbr>Async</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#promisetoresult" class="tsd-kind-icon">promise<wbr>ToResult</a></li>
@@ -883,7 +883,7 @@
 					<a name="either" class="tsd-anchor"></a>
 					<h3>either</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">either&lt;OkData, ErrorMessage, OkOutput, ErrorOutput&gt;<span class="tsd-signature-symbol">(</span>result<span class="tsd-signature-symbol">: </span><a href="globals.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">OkData</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">ErrorMessage</span><span class="tsd-signature-symbol">&gt;</span>, ifOk<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">function</span>, ifError<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">OkOutput</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ErrorOutput</span></li>
+						<li class="tsd-signature tsd-kind-icon">either&lt;OkData, ErrorMessage, OkOutput, ErrorOutput&gt;<span class="tsd-signature-symbol">(</span>result<span class="tsd-signature-symbol">: </span><a href="globals.html#result" class="tsd-signature-type">Result</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">OkData</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">ErrorMessage</span><span class="tsd-signature-symbol">&gt;</span>, okThen<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">function</span>, errorThen<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">OkOutput</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">ErrorOutput</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
@@ -894,7 +894,7 @@
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Takes a result, and runs either an ifOk or ifError function on it.</p>
+									<p>Takes a result, and runs either an okThen or errorThen function on it.</p>
 								</div>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -921,7 +921,7 @@
 									</div>
 								</li>
 								<li>
-									<h5>ifOk: <span class="tsd-signature-type">function</span></h5>
+									<h5>okThen: <span class="tsd-signature-type">function</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>Function to run if the result is an Ok</p>
 									</div>
@@ -945,7 +945,7 @@
 									</ul>
 								</li>
 								<li>
-									<h5>ifError: <span class="tsd-signature-type">function</span></h5>
+									<h5>errorThen: <span class="tsd-signature-type">function</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>Function to run if the result is an Error</p>
 									</div>
@@ -1145,7 +1145,7 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-has-type-parameter">
-					<a name="ifError" class="tsd-anchor"></a>
+					<a name="errorThen" class="tsd-anchor"></a>
 					<h3>map<wbr>Error</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-has-type-parameter">
 						<li class="tsd-signature tsd-kind-icon">map<wbr>Error&lt;OkData, ErrorMessage, ErrorOutput&gt;<span class="tsd-signature-symbol">(</span>f<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">(Anonymous function)</span></li>
@@ -1210,7 +1210,7 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-has-type-parameter">
-					<a name="ifOk" class="tsd-anchor"></a>
+					<a name="okThen" class="tsd-anchor"></a>
 					<h3>map<wbr>Ok</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-has-type-parameter">
 						<li class="tsd-signature tsd-kind-icon">map<wbr>Ok&lt;OkData, ErrorMessage, OkOutput&gt;<span class="tsd-signature-symbol">(</span>f<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">function</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">(Anonymous function)</span></li>
@@ -1886,10 +1886,10 @@
 						<a href="globals.html#isresult" class="tsd-kind-icon">is<wbr>Result</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#ifError" class="tsd-kind-icon">map<wbr>Error</a>
+						<a href="globals.html#errorThen" class="tsd-kind-icon">map<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#ifOk" class="tsd-kind-icon">map<wbr>Ok</a>
+						<a href="globals.html#okThen" class="tsd-kind-icon">map<wbr>Ok</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#ok" class="tsd-kind-icon">ok</a>

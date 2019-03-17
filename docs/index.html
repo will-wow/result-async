@@ -71,7 +71,7 @@
 				<p>or</p>
 				<pre><code class="language-bash">yarn add result-async</code></pre>
 				<p>Then import the functions and (in TypeScript) types you need:</p>
-				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ok, ifOk, chainOkAsync, Result } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;</code></pre>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ok, okThen, okChainAsync, Result } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;</code></pre>
 				<h2 id="examples">Examples</h2>
 				<p>You can react to errors inline:</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { isError } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
@@ -86,19 +86,19 @@
 				<p>And you can pipe functions - both synchronous and asynchronous ones - together for a big data-handling pipeline:</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {
   resultify,
-  chainOkAsync,
-  ifError,
-  ifOk,
-  rescueError
+  okChainAsync,
+  errorThen,
+  okThen,
+  errorRescue
 } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
 
 pipeAsync(
   someData,
   resultify(someAsyncFunction),
-  ifOk(transformData),
-  chainOkAsync(anotherAsyncFunction),
-  ifError(logError),
-  rescueError(tryToRescueError)
+  okThen(transformData),
+  okChainAsync(anotherAsyncFunction),
+  errorThen(logError),
+  errorRescue(tryToRescueError)
 );</code></pre>
 				<p>See <a href="https://github.com/will-wow/result-async">the docs</a> for the full API documentation.</p>
 				<h2 id="typescript">Typescript</h2>
@@ -215,10 +215,10 @@ either(
 						<a href="globals.html#isresult" class="tsd-kind-icon">is<wbr>Result</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#ifError" class="tsd-kind-icon">map<wbr>Error</a>
+						<a href="globals.html#errorThen" class="tsd-kind-icon">map<wbr>Error</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#ifOk" class="tsd-kind-icon">map<wbr>Ok</a>
+						<a href="globals.html#okThen" class="tsd-kind-icon">map<wbr>Ok</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#ok" class="tsd-kind-icon">ok</a>

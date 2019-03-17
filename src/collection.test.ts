@@ -1,5 +1,5 @@
 import { ok, error } from "./result";
-import { allOk, asyncAllOk, firstOk } from "./collection";
+import { allOk, allOkAsync, firstOk } from "./collection";
 
 describe("collection", () => {
   describe("allOk", () => {
@@ -15,7 +15,7 @@ describe("collection", () => {
   describe("allOkAsync", () => {
     it("returns all ok messages if all results are ok", async () => {
       expect(
-        await asyncAllOk([
+        await allOkAsync([
           Promise.resolve(ok(1)),
           Promise.resolve(ok(2)),
           Promise.resolve(ok(3))
@@ -25,7 +25,7 @@ describe("collection", () => {
 
     it("returns the first error if any results are error", async () => {
       expect(
-        await asyncAllOk([
+        await allOkAsync([
           Promise.resolve(ok(1)),
           Promise.resolve(error(2)),
           Promise.resolve(ok(3))
@@ -35,7 +35,7 @@ describe("collection", () => {
 
     it("returns the first error if any promises are rejected", async () => {
       expect(
-        await asyncAllOk([
+        await allOkAsync([
           Promise.resolve(ok(1)),
           Promise.reject(ok(2)),
           Promise.resolve(ok(3))

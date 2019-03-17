@@ -1,20 +1,24 @@
 import fetch from "cross-fetch";
+import * as R from "ramda";
+
 import {
-  asyncAllOk,
-  doOnOkAsync,
-  ifOk,
+  allOk,
+  allOkAsync,
+  errorDo,
+  errorRescueAsync,
   isError,
   isOk,
+  okChainAsync,
+  okDo,
+  okDoAsync,
+  okOrThrow,
+  okThen,
   pipeAsync,
   promiseToResult,
   Result,
   resultify,
   ResultP
 } from "./index";
-import { chainOkAsync, rescueErrorAsync } from "./async";
-import * as R from "ramda";
-import { doOnError, okOrThrow, doOnOk } from "./sync";
-import { allOk } from "./collection";
 
 interface Post {
   userId: number;
@@ -37,20 +41,22 @@ const baseUrl = "https://jsonplaceholder.typicode.com";
  * Example of piping sync and async result functions.
  * Count all comments on https://jsonplaceholder.typicode.com
  * May pull from a local cache, or go out to the internet, for Posts.
+ * 
+ * Note now it's easy to scan for error handling code by looking at the
+ * first character of the functions in the pipe.
  */
 async function countAllComments(postsCache: PostsCache): Promise<number> {
   return pipeAsync(
     promiseToResult(postsCache.getCache()),
-    doOnError(console.error),
-    rescueErrorAsync(() => get<Post[]>("/posts")),
-    doOnError(e => console.error("failed to get posts", e)),
-    doOnOk(posts => console.log(`found ${posts.length} posts`)),
-    doOnOkAsync(postsCache.updateCache),
-    ifOk(R.map(post => get<Comment[]>(`/comments?postId=${post.id}`))),
-    chainOkAsync(asyncAllOk),
-    ifOk(R.map(comments => comments.length)),
-    ifOk(R.sum),
-    doOnOk(total => console.log("total:", total)),
+    errorDo(console.error),
+    errorRescueAsync(() => get<Post[]>("/posts")),
+    okDo(posts => console.log(`found ${posts.length} posts`)),
+    okDoAsync(postsCache.updateCache),
+    okThen(R.map(post => get<Comment[]>(`/comments?postId=${post.id}`))),
+    okChainAsync(allOkAsync),
+    okThen(R.map(comments => comments.length)),
+    okThen(R.sum),
+    okDo(total => console.log("total:", total)),
     okOrThrow
   );
 }
@@ -60,15 +66,10 @@ async function countAllComments(postsCache: PostsCache): Promise<number> {
  */
 async function promiseCountAllComments(postsCache: PostsCache) {
   let posts: Post[];
-  try {
-    posts = await postsCache.getCache().catch(error => {
-      console.error(error);
-      return promiseGet("/posts");
-    });
-  } catch (e) {
-    console.error("failed to get posts", e);
-    throw e;
-  }
+  posts = await postsCache.getCache().catch(error => {
+    console.error(error);
+    return promiseGet("/posts");
+  });
 
   console.log(`found ${posts.length} posts`);
   await postsCache.updateCache(posts);
@@ -92,19 +93,16 @@ async function promiseCountAllComments(postsCache: PostsCache) {
  */
 async function awaitCountAllComments(postsCache: PostsCache) {
   const cachedPosts = await promiseToResult(postsCache.getCache());
-  let posts: Result<Post[], string>;
 
-  if (isOk(cachedPosts)) {
-    posts = cachedPosts;
-  } else {
+  if (isError(cachedPosts)) {
     console.error(cachedPosts.error);
-    posts = await get<Post[]>("/posts");
   }
 
-  if (isError(posts)) {
-    console.error("failed to get posts", posts.error);
-    throw posts.error;
-  }
+  const posts: Result<Post[], string> = isOk(cachedPosts)
+    ? cachedPosts
+    : await get<Post[]>("/posts");
+
+  if (isError(posts)) throw posts.error;
 
   console.log(`found ${posts.ok.length} posts`);
   await postsCache.updateCache(posts.ok);
@@ -134,7 +132,7 @@ function promiseGet<T>(url: string): Promise<T> {
 function get<T>(url: string): ResultP<T, any> {
   return pipeAsync(
     fetchResult(`${baseUrl}${url}`),
-    chainOkAsync(res => promiseToResult(res.json()))
+    okChainAsync(res => promiseToResult(res.json()))
   );
 }
 

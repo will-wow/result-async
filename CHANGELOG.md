@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Function names from mapOk to ifOk
+- Function names from mapOk to okThen
 
 ## [1.0.0]
 

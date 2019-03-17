@@ -24,7 +24,7 @@ yarn add result-async
 Then import the functions and (in TypeScript) types you need:
 
 ```typescript
-import { ok, ifOk, chainOkAsync, Result } from "result-async";
+import { ok, okThen, okChainAsync, Result } from "result-async";
 ```
 
 ## Examples
@@ -63,19 +63,19 @@ And you can pipe functions - both synchronous and asynchronous ones - together f
 ```typescript
 import {
   resultify,
-  chainOkAsync,
-  ifError,
-  ifOk,
-  rescueError
+  okChainAsync,
+  errorThen,
+  okThen,
+  errorRescue
 } from "result-async";
 
 pipeAsync(
   someData,
   resultify(someAsyncFunction),
-  ifOk(transformData),
-  chainOkAsync(anotherAsyncFunction),
-  ifError(logError),
-  rescueError(tryToRescueError)
+  okThen(transformData),
+  okChainAsync(anotherAsyncFunction),
+  errorThen(logError),
+  errorRescue(tryToRescueError)
 );
 ```
 
@@ -204,6 +204,6 @@ either(
 
 ### What about Fantasy-Land
 
-If you come from a Haskell-y background, you might be saying, "hey, `Result` is just an `Either` type, and `ifOk` is just `map`". You're right! And if you're looking for more abstract functional programming, you may be interested in libraries like [Sanctuary](https://github.com/sanctuary-js/sanctuary) or [Folktalk](https://github.com/origamitower/folktale), which provide a Fantasy-Land compatible Either and Result types, respectively. [Fluture](https://github.com/fluture-js/Fluture) is also a great tool for Fantasy-Land compatible asynchronous programming.
+If you come from a Haskell-y background, you might be saying, "hey, `Result` is just an `Either` type, and `okThen` is just `map`". You're right! And if you're looking for more abstract functional programming, you may be interested in libraries like [Sanctuary](https://github.com/sanctuary-js/sanctuary) or [Folktalk](https://github.com/origamitower/folktale), which provide a Fantasy-Land compatible Either and Result types, respectively. [Fluture](https://github.com/fluture-js/Fluture) is also a great tool for Fantasy-Land compatible asynchronous programming.
 
 But if your team isn't ready that all that, think of `Result-Async` like a gateway drug for full ADT-style programming. It lets you write composable, functional programs, but with functions names that are trying to be friendlier to people who don't think in monands.

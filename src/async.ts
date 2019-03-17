@@ -15,7 +15,7 @@ export type ResultP<OkData, ErrorMessage> = Promise<
  * @param result - The result to match against
  * @returns - The Result from function f or the Error
  */
-export function chainOkAsync<OkData, ErrorMessage, OkOutput, ErrorOutput>(
+export function okChainAsync<OkData, ErrorMessage, OkOutput, ErrorOutput>(
   f: (ok: OkData) => ResultP<OkOutput, ErrorOutput>
 ) {
   return async (
@@ -40,7 +40,7 @@ export function chainOkAsync<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @param result - The result to match against
  * @returns - The Result from function f or the Ok result
  */
-export const rescueErrorAsync = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
+export const errorRescueAsync = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
   f: (ok: ErrorMessage) => ResultP<OkOutput, ErrorOutput>
 ) => async (
   result: Result<OkData, ErrorMessage>
@@ -60,11 +60,11 @@ export const rescueErrorAsync = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @returns A promise of the the original result
  *
  * ```javascript
- * doOnOk(console.log, ok("hi")) // Logs "hi"
- * doOnOk(console.log, error(1)) // No log
+ * okDo(console.log, ok("hi")) // Logs "hi"
+ * okDo(console.log, error(1)) // No log
  * ```
  */
-export function doOnOkAsync<OkData, ErrorMessage>(f: (ok: OkData) => any) {
+export function okDoAsync<OkData, ErrorMessage>(f: (ok: OkData) => any) {
   return async function(
     result: Result<OkData, ErrorMessage>
   ): ResultP<OkData, ErrorMessage> {
@@ -83,11 +83,11 @@ export function doOnOkAsync<OkData, ErrorMessage>(f: (ok: OkData) => any) {
  * @returns a promise of the original Result
  *
  * ```javascript
- * doOnError(console.error)(ok("hi")) // No log
- * doOnError(console.error)(error(1)) // Logs 1
+ * errorDo(console.error)(ok("hi")) // No log
+ * errorDo(console.error)(error(1)) // Logs 1
  * ```
  */
-export function doOnErrorAsync<OkData, ErrorMessage>(
+export function errorDoAsync<OkData, ErrorMessage>(
   f: (ok: ErrorMessage) => any
 ) {
   return async function(

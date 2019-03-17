@@ -1,14 +1,14 @@
 import { ok, error, Result } from "./result";
 import {
-  errorOrThrow,
-  okOrThrow,
   either,
-  ifError,
-  ifOk,
-  chainOk,
-  rescueError,
-  replaceError,
-  replaceOk,
+  errorOrThrow,
+  errorReplace,
+  errorRescue,
+  errorThen,
+  okChain,
+  okOrThrow,
+  okReplace,
+  okThen,
   resultToBoolean
 } from "./sync";
 
@@ -25,18 +25,18 @@ type TestCase = [
 ];
 
 describe("examples", () => {
-  it("runs the ifOk example", () => {
+  it("runs the okThen example", () => {
     function anyAdder(n: number) {
       return n + 1;
     }
 
-    expect(ifOk(anyAdder)(ok(1))).toEqual(ok(2));
-    expect(ifOk(anyAdder)(error("bad"))).toEqual(error("bad"));
-    expect(ifOk(anyAdder)(ok(-1))).toEqual(ok(0));
+    expect(okThen(anyAdder)(ok(1))).toEqual(ok(2));
+    expect(okThen(anyAdder)(error("bad"))).toEqual(error("bad"));
+    expect(okThen(anyAdder)(ok(-1))).toEqual(ok(0));
   });
 
-  it("runs the ifError example", () => {
-    const normalizeErrorCase = ifError((message: string) =>
+  it("runs the errorThen example", () => {
+    const normalizeErrorCase = errorThen((message: string) =>
       message.toLowerCase()
     );
 
@@ -44,18 +44,18 @@ describe("examples", () => {
     expect(normalizeErrorCase(error("NOT FOUND"))).toEqual(error("not found"));
   });
 
-  it("runs the chainOk example", () => {
+  it("runs the okChain example", () => {
     function positiveAdder(n: number) {
       return n < 0 ? error("only positive") : ok(n + 1);
     }
 
-    expect(chainOk(positiveAdder)(ok(1))).toEqual(ok(2));
-    expect(chainOk(positiveAdder)(error("bad"))).toEqual(error("bad"));
-    expect(chainOk(positiveAdder)(ok(-1))).toEqual(error("only positive"));
+    expect(okChain(positiveAdder)(ok(1))).toEqual(ok(2));
+    expect(okChain(positiveAdder)(error("bad"))).toEqual(error("bad"));
+    expect(okChain(positiveAdder)(ok(-1))).toEqual(error("only positive"));
   });
 
-  it("runs the rescueError example", () => {
-    const rescueNotFound = rescueError((errorMessage: string) =>
+  it("runs the errorRescue example", () => {
+    const rescueNotFound = errorRescue((errorMessage: string) =>
       errorMessage === "not found" ? ok("unknown") : error(errorMessage)
     );
 
@@ -70,22 +70,27 @@ describe("examples", () => {
 describe("mappers", () => {
   const testCases: TestCase[] = [
     // map
-    [ok(1), ifOk, add1, ok(2)],
-    [error(1), ifOk, add1, error(1)],
-    [ok(1), ifError, add1, ok(1)],
-    [error(1), ifError, add1, error(2)],
+    [ok(1), okThen, add1, ok(2)],
+    [error(1), okThen, add1, error(1)],
+    [ok(1), errorThen, add1, ok(1)],
+    [error(1), errorThen, add1, error(2)],
     // chain
-    [ok(1), chainOk, add1Ok, ok(2)],
-    [ok(1), chainOk, add1Error, error(2)],
-    [error(1), chainOk, add1Ok, error(1)],
-    [ok(1), rescueError, add1Ok, ok(1)],
-    [error(1), rescueError, add1Ok, ok(2)],
-    [error(1), rescueError, add1Error, error(2)],
+    [ok(1), okChain, add1Ok, ok(2)],
+    [ok(1), okChain, add1Error, error(2)],
+    [error(1), okChain, add1Ok, error(1)],
+    [ok(1), errorRescue, add1Ok, ok(1)],
+    [error(1), errorRescue, add1Ok, ok(2)],
+    [error(1), errorRescue, add1Error, error(2)],
     // replace
-    [ok(1), replaceOk, "good", ok("good")],
-    [error(1), replaceOk, "good", error(1)],
-    [ok(1), replaceError, "bad", ok(1)],
-    [error(1), replaceError, "bad", error("bad")]
+    [ok(1), okReplace, "good", ok("good")],
+    [error(1), okReplace, "good", error(1)],
+    [ok(1), errorReplace, "bad", ok(1)],
+    [error(1), errorReplace, "bad", error("bad")],
+    // do
+    [ok(1), okDo, add1, ok(1)],
+    [error(1), okDo, add1, error(1)],
+    [ok(1), errorDo, add1, ok(1)],
+    [error(1), errorDo, add1, error(1)]
   ];
 
   testCases.map(([result, testedFunction, f, expected]) => {
