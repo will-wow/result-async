@@ -78,9 +78,9 @@ export function chainOk<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @param f - the function to run on the ok data
  * @param result - The result to match against
  */
-export function replaceOk<OkData, ErrorMessage, OkOutput>(newData: OkOutput) {
-  return (
-    result: Result<OkData, ErrorMessage>
+export function replaceOk<OkOutput>(newData: OkOutput) {
+  return <ErrorMessage>(
+    result: Result<any, ErrorMessage>
   ): Result<OkOutput, ErrorMessage> => {
     if (isError(result)) {
       return result;
@@ -168,12 +168,8 @@ export function chainError<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @param f - the function to run on the ok data
  * @param result - The result to match against
  */
-export function replaceError<OkData, ErrorMessage, ErrorOutput>(
-  newError: ErrorOutput
-) {
-  return (
-    result: Result<OkData, ErrorMessage>
-  ): Result<OkData, ErrorOutput> => {
+export function replaceError<ErrorOutput>(newError: ErrorOutput) {
+  return <OkData>(result: Result<OkData, any>): Result<OkData, ErrorOutput> => {
     if (isOk(result)) {
       return result;
     }
@@ -236,13 +232,13 @@ export function okOrThrow<OkData>(result: Result<OkData, any>): OkData {
 /**
  * Get the error message from a result. If it's an Ok, throw an error.
  * @returns the error message
- * 
+ *
  * @example
  * ```typescript
  * const errorResult = error("bad");
  * errorOrThrow(result);
  * // "bad"
- * 
+ *
  * const okResult = ok("good");
  * errorOrThrow(result);
  * // throws new Error("good")

@@ -57,18 +57,21 @@ export const asyncChainError = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @param promise
  * @returns Ok if the promise resolved, Error if it was rejected.
  */
-export const promiseToResult = <OkData, ErrorMessage>(
+export function promiseToResult<OkData>(
   promise: Promise<OkData>
-): ResultP<OkData, ErrorMessage> => promise.then(ok).catch(error);
+): ResultP<OkData, any> {
+  return promise.then(ok).catch(error);
+}
 
 /**
  * Converts a function that returns a promise to one that always resolved to a Result
  * @param f A function that returns a promise
  * @returns a resolved Ok if the the promise resolved, a resolved Error if the promise was rejected.
  */
-export function resultify<Args extends any[], OkData, ErrorMessage = any>(
+export function resultify<Args extends any[], OkData>(
   f: (...args: Args) => Promise<OkData>
 ) {
-  return (...args: Args): ResultP<OkData, ErrorMessage> =>
-    promiseToResult(f(...args));
+  return function(...args: Args): ResultP<OkData, any> {
+    return promiseToResult(f(...args));
+  };
 }
