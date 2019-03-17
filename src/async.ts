@@ -1,5 +1,9 @@
 import { Result, ok, error, isOk, isError } from "./result";
 
+/**
+ * A Result, wrapped in a promise. The promise should never be rejected,
+ * and should always resolve to an Ok or Error.
+ */
 export type ResultP<OkData, ErrorMessage> = Promise<
   Result<OkData, ErrorMessage>
 >;
@@ -14,6 +18,14 @@ export type ResultP<OkData, ErrorMessage> = Promise<
  * @param f - the function to run on the ok data
  * @param result - The result to match against
  * @returns - The Result from function f or the Error
+ *
+ * ```javascript
+ * pipeAsync(
+ *   fetchUser(),
+ *   okChainAsync(user => fetchComments(user.id)),
+ *   okDo(comments => console.log('total comments:', comments.length))
+ * )
+ * ```
  */
 export function okChainAsync<OkData, ErrorMessage, OkOutput, ErrorOutput>(
   f: (ok: OkData) => ResultP<OkOutput, ErrorOutput>
@@ -39,6 +51,15 @@ export function okChainAsync<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @param f - the function to run on the error message
  * @param result - The result to match against
  * @returns - The Result from function f or the Ok result
+ *
+ * ```javascript
+ * const fetchData = () => fetch("https://example.com/data");
+ * pipeAsync(
+ *   getCachedData,
+ *   errorRescueAsync(fetchData),
+ *   okThen(transformData)
+ * )
+ * ```
  */
 export const errorRescueAsync = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
   f: (ok: ErrorMessage) => ResultP<OkOutput, ErrorOutput>
@@ -60,8 +81,12 @@ export const errorRescueAsync = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @returns A promise of the the original result
  *
  * ```javascript
- * okDo(console.log, ok("hi")) // Logs "hi"
- * okDo(console.log, error(1)) // No log
+ * pipeAsync(
+ *   fetchData,
+ *   // Saves to cache, and awaits completion before moving on.
+ *   okDoAsync(saveToCache),
+ *   okThen(transformData)
+ * )
  * ```
  */
 export function okDoAsync<OkData, ErrorMessage>(f: (ok: OkData) => any) {
@@ -83,8 +108,12 @@ export function okDoAsync<OkData, ErrorMessage>(f: (ok: OkData) => any) {
  * @returns a promise of the original Result
  *
  * ```javascript
- * errorDo(console.error)(ok("hi")) // No log
- * errorDo(console.error)(error(1)) // Logs 1
+ * pipeAsync(
+ *   fetchData,
+ *   // Logs an error, and awaits completion before moving on.
+ *   errorDoAsync(logError),
+ *   okThen(transformData)
+ * )
  * ```
  */
 export function errorDoAsync<OkData, ErrorMessage>(
@@ -102,8 +131,21 @@ export function errorDoAsync<OkData, ErrorMessage>(
 
 /**
  * Awaits a promise, and returns a result based on the outcome
+ *
+ * Note that the Error case isn't typesafe, since promises don't have an
+ * error type, just a success one. It's probably a good idea to use a
+ * `errorThen` or `errorReplace` to handle errors and soon as possible.
+ *
  * @param promise
  * @returns Ok if the promise resolved, Error if it was rejected.
+ *
+ * ```javascript
+ * pipeAsync(
+ *   promiseToResult(fetch("http://example.com/data")),
+ *   errorThen(handleError),
+ *   okThen(transformData)
+ * )
+ * ```
  */
 export function promiseToResult<OkData>(
   promise: Promise<OkData>
@@ -113,8 +155,23 @@ export function promiseToResult<OkData>(
 
 /**
  * Converts a function that returns a promise to one that always resolved to a Result
+ *
+ * Note that the Error case isn't typesafe, since promises don't have an
+ * error type, just a success one. It's probably a good idea to use a
+ * `errorThen` or `errorReplace` to handle errors and soon as possible.
+ *
  * @param f A function that returns a promise
- * @returns a resolved Ok if the the promise resolved, a resolved Error if the promise was rejected.
+ * @returns a function that returns a promise that always resolves to a Result
+ *
+ * ```javascript
+ * const writeFile = resultify(promisify(fs.writeFile));
+ *
+ * pipeAsync(
+ *   writeFile("path/to/file"),
+ *   errorThen(handleError),
+ *   okThen(transformFileData)
+ * )
+ * ```
  */
 export function resultify<Args extends any[], OkData>(
   f: (...args: Args) => Promise<OkData>

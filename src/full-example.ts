@@ -1,6 +1,14 @@
 import fetch from "cross-fetch";
 import * as R from "ramda";
 
+// An example of working with `result-async` in different ways.
+//
+// To run the functions, run:
+//
+// ```bash
+// yarn ts-node ./src/full-example.ts
+// ```
+
 import {
   allOk,
   allOkAsync,
@@ -15,7 +23,6 @@ import {
   okThen,
   pipeAsync,
   promiseToResult,
-  Result,
   resultify,
   ResultP
 } from "./index";
@@ -49,14 +56,14 @@ async function countAllComments(postsCache: PostsCache): Promise<number> {
   return pipeAsync(
     promiseToResult(postsCache.getCache()),
     errorDo(console.error),
-    errorRescueAsync(() => get<Post[]>("/posts")),
-    okDo(posts => console.log(`found ${posts.length} posts`)),
+    errorRescueAsync(fetchPosts),
+    okDo(logPostCount),
     okDoAsync(postsCache.updateCache),
-    okThen(R.map(post => get<Comment[]>(`/comments?postId=${post.id}`))),
+    okThen(R.map(fetchCommentsForPost)),
     okChainAsync(allOkAsync),
     okThen(R.map(comments => comments.length)),
     okThen(R.sum),
-    okDo(total => console.log("total:", total)),
+    okDo(logCommentTotal),
     okOrThrow
   );
 }
@@ -68,23 +75,21 @@ async function promiseCountAllComments(postsCache: PostsCache) {
   let posts: Post[];
   posts = await postsCache.getCache().catch(error => {
     console.error(error);
-    return promiseGet("/posts");
+    return fetchPostsPromise();
   });
 
-  console.log(`found ${posts.length} posts`);
+  logPostCount(posts);
   await postsCache.updateCache(posts);
 
-  const promises = posts.map(post =>
-    promiseGet<Comment[]>(`/comments?postId=${post.id}`)
-  );
+  const promises = posts.map(fetchCommentsForPostPromise);
 
   const postComments = await Promise.all(promises);
 
   const counts = postComments.map(comments => comments.length);
 
   const total = R.sum(counts);
+  logCommentTotal(total);
 
-  console.log("total:", total);
   return total;
 }
 
@@ -98,18 +103,14 @@ async function awaitCountAllComments(postsCache: PostsCache) {
     console.error(cachedPosts.error);
   }
 
-  const posts: Result<Post[], string> = isOk(cachedPosts)
-    ? cachedPosts
-    : await get<Post[]>("/posts");
+  const posts = isOk(cachedPosts) ? cachedPosts : await fetchPosts();
 
   if (isError(posts)) throw posts.error;
 
-  console.log(`found ${posts.ok.length} posts`);
+  logPostCount(posts.ok);
   await postsCache.updateCache(posts.ok);
 
-  const promises = posts.ok.map(post =>
-    get<Comment[]>(`/comments?postId=${post.id}`)
-  );
+  const promises = posts.ok.map(fetchCommentsForPost);
 
   const postCommentsResults = await Promise.all(promises);
   const postComments = allOk(postCommentsResults);
@@ -118,22 +119,9 @@ async function awaitCountAllComments(postsCache: PostsCache) {
   const counts = postComments.ok.map(comments => comments.length);
 
   const total = R.sum(counts);
+  logCommentTotal(total);
 
-  console.log("total:", total);
   return total;
-}
-
-const fetchResult = resultify(fetch);
-
-function promiseGet<T>(url: string): Promise<T> {
-  return fetch(`${baseUrl}${url}`).then(res => res.json());
-}
-
-function get<T>(url: string): ResultP<T, any> {
-  return pipeAsync(
-    fetchResult(`${baseUrl}${url}`),
-    okChainAsync(res => promiseToResult(res.json()))
-  );
 }
 
 /**
@@ -153,6 +141,43 @@ class PostsCache {
     return Promise.resolve(this.cache);
   };
 }
+
+function fetchPosts() {
+  return get<Post[]>("/posts");
+}
+
+function fetchCommentsForPost(post: Post) {
+  return get<Comment[]>(`/comments?postId=${post.id}`);
+}
+
+function fetchPostsPromise() {
+  return promiseGet<Post[]>("/posts");
+}
+
+function fetchCommentsForPostPromise(post: Post) {
+  return promiseGet<Comment[]>(`/comments?postId=${post.id}`);
+}
+
+function logPostCount(posts: Post[]): void {
+  console.log(`found ${posts.length} posts`);
+}
+
+function logCommentTotal(total: number): void {
+  console.log("total:", total);
+}
+
+function promiseGet<T>(url: string): Promise<T> {
+  return fetch(`${baseUrl}${url}`).then(res => res.json());
+}
+
+function get<T>(url: string): ResultP<T, any> {
+  return pipeAsync(
+    fetchResult(`${baseUrl}${url}`),
+    okChainAsync(res => promiseToResult(res.json()))
+  );
+}
+
+const fetchResult = resultify(fetch);
 
 // From https://jsonplaceholder.typicode.com/posts
 const postsCache = new PostsCache([
@@ -177,9 +202,9 @@ async function main() {
   console.log("==pipe==");
   await countAllComments(postsCache);
   console.log("==await resuts==");
-  promiseCountAllComments(postsCache);
+  await promiseCountAllComments(postsCache);
   console.log("==await promises==");
-  awaitCountAllComments(postsCache);
+  await awaitCountAllComments(postsCache);
 }
 
 main();

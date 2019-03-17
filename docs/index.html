@@ -63,9 +63,17 @@
 				<h1 id="result-async">Result-Async</h1>
 				<img width="80" height="80" src="./assets/images/logo.png" alt="logo" align="right" />
 				<p>A library for handling errors with types and without exceptions - even asynchronous ones</p>
-				<p><a href="https://circleci.com/gh/will-wow/result-async"><img src="https://circleci.com/gh/will-wow/result-async.svg?style=svg" alt="CircleCI"></a>
-					<a href="https://www.npmjs.com/package/result-async"><img src="https://img.shields.io/npm/v/result-async.svg" alt="npm package"></a>
-				<a href="https://david-dm.org/will-wow/result-async"><img src="https://david-dm.org/will-wow/result-async.svg" alt="David Dependancy Status"></a></p>
+				<p><a href="https://www.npmjs.com/package/result-async"><img src="https://img.shields.io/npm/v/result-async.svg" alt="npm package"></a>
+					<a href="https://circleci.com/gh/will-wow/result-async"><img src="https://circleci.com/gh/will-wow/result-async.svg?style=svg" alt="CircleCI"></a>
+					<a href="https://david-dm.org/will-wow/result-async"><img src="https://david-dm.org/will-wow/result-async.svg" alt="David Dependency Status"></a>
+				<a href="https://codecov.io/gh/will-wow/result-async"><img src="https://codecov.io/gh/will-wow/result-async/branch/master/graph/badge.svg" alt="codecov"></a></p>
+				<p><code>result-async</code> focuses on making a few things easier in JavaScript/TypeScript:</p>
+				<ol>
+					<li>Predictable error handling for synchronous and asynchronous functions</li>
+					<li>Handling errors in pipelines of synchronous and asynchronous functions</li>
+					<li>Making pipelines easy to read</li>
+					<li>Giving friendly names to proven functional programming concepts</li>
+				</ol>
 				<h2 id="install">Install</h2>
 				<pre><code class="language-bash">npm i result-async --save</code></pre>
 				<p>or</p>
@@ -73,6 +81,39 @@
 				<p>Then import the functions and (in TypeScript) types you need:</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ok, okThen, okChainAsync, Result } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;</code></pre>
 				<h2 id="examples">Examples</h2>
+				<p>Here are some example of what working with <code>result-async</code> looks like.
+					For more examples, and complete documentation, see
+				<a href="https://will-wow.github.io/result-async/">the docs</a></p>
+				<h3 id="full-example">Full Example</h3>
+				<p><code>result-async</code> helps you handle errors in a controlled, readable, and typesafe way,
+				using techniques from functional programming.</p>
+				<p>Here&#39;s an example of the sort of data-processing pipelines you can build:</p>
+				<pre><code class="language-typescript"><span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">countAllComments</span>(<span class="hljs-params">postsCache: PostsCache</span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">number</span>&gt; </span>{
+  <span class="hljs-keyword">return</span> pipeAsync(
+    promiseToResult(postsCache.getCache()),
+    errorDo(<span class="hljs-built_in">console</span>.error),
+    errorRescueAsync(fetchPosts),
+    okDo(logPostCount),
+    okDoAsync(postsCache.updateCache),
+    okThen(R.map(fetchCommentsForPost)),
+    okChainAsync(allOkAsync),
+    okThen(R.map(<span class="hljs-function"><span class="hljs-params">comments</span> =&gt;</span> comments.length)),
+    okThen(R.sum),
+    okDo(logCommentTotal),
+    okOrThrow
+  );
+}</code></pre>
+				<p>The basic premise is functions that start with <code>ok</code> will only operate on successful data,
+					and pass on error messages.
+					Functions that start with <code>error</code> will only operate on error messages, and either change
+				or try to rescue them back into successes.</p>
+				<p>Prefixing the function names makes it easy to scan a pipeline and find the error handling code.</p>
+				<p>Other functions transform other data structures to <code>Result</code>s (like <code>promiseToResult</code>),
+				or handle collections of <code>Result</code>s (like <code>allOkAsync</code>).</p>
+				<p>Functions ending in <code>async</code> will return a <code>Promise</code> that resolves to a <code>Result</code>. This helps
+				TypeScript track types, and helps developers differentiate between pure and impure functions.</p>
+				<p>See <a href="./src/full-example">./src/full-example</a> for a working version.</p>
+				<h3 id="techniques">Techniques</h3>
 				<p>You can react to errors inline:</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { isError } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
 
@@ -100,17 +141,21 @@ pipeAsync(
   errorThen(logError),
   errorRescue(tryToRescueError)
 );</code></pre>
-				<p>See <a href="https://github.com/will-wow/result-async">the docs</a> for the full API documentation.</p>
 				<h2 id="typescript">Typescript</h2>
 				<p><code>result-async</code> is written in TypeScript, and it&#39;s built to help write typesafe error handling code. But it works great with vanilla JavaScript too!</p>
+				<p>One of the big benefits of adding <code>Result</code>s to <code>Promise</code>s is <code>Promise</code>s don&#39;t have type information about their error cases. But many promises have predictable error types, and
+					you can have your asynchronous functions return a <code>ResultP</code> to encode those errors types
+				in the type system.</p>
+				<p>Also <code>ResultP</code>s should <em>always</em> resolve and never be rejected. This means no more <code>try/catch</code> blocks, even when using <code>async/await</code>.</p>
 				<h3 id="types">Types</h3>
 				<p>The important types are:</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">type</span> Result&lt;OkData, ErrorMessage&gt; = OkResult&lt;Data&gt; | ErrorResult&lt;Message&gt;;
 <span class="hljs-keyword">type</span> ResultP&lt;OkData, ErrorMessage&gt; = <span class="hljs-built_in">Promise</span>&lt;Result&lt;OkData, ErrorMessage&gt;&gt;;</code></pre>
-				<p>So a result could be either Ok or an Error - and either way, the payload is strongly typed.</p>
-				<p><code>ResultP</code> is just a promise that wraps a <code>Result</code>. Async functions can return a <code>ResultP</code>, so that success and failure both have types after an <code>await</code>;</p>
+				<p>So a <code>Result</code> could be either Ok or an Error - and either way, the payload is strongly typed.</p>
 				<h3 id="guards">Guards</h3>
-				<p><code>isOk(result)</code> and <code>isError(result)</code> are both typeguards, so if <code>isOk</code> returns true, typescript will know the Result is actually an OkResult:</p>
+				<p><a href="https://will-wow.github.io/result-async/globals.html#isok"><code>isOk(result)</code></a> and
+					<a href="https://will-wow.github.io/result-async/globals.html#iserror"><code>isError(result)</code></a> are both
+				typeguards, so if <code>isOk</code> returns true, typescript will know the Result is actually an OkResult:</p>
 				<pre><code class="language-typescript"><span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">result: Result&lt;<span class="hljs-built_in">number</span>, <span class="hljs-built_in">string</span>&gt;</span>) </span>{
   <span class="hljs-comment">// Type error: ok could be undefined.</span>
   result.ok + <span class="hljs-number">1</span>
@@ -120,7 +165,24 @@ pipeAsync(
     result.ok + <span class="hljs-number">1</span>
   }
 }</code></pre>
+				<h2 id="testing-with-result-async">Testing with Result-Async</h2>
+				<p>If you&#39;re using a library like <a href="https://github.com/facebook/jest">Jest</a> for testing, you can generally follow your testing library&#39;s advice for <a href="https://jest-bot.github.io/jest/docs/asynchronous.html#content">testing asynchronous code</a>.</p>
+				<p>Unlike with standard promises, you don&#39;t have to worry about rejected promises throwing errors.</p>
+				<p>You&#39;ll probably want to test if your calls succeed or fail. If you want to check both the result and payload, try matching against another <code>result</code>:</p>
+				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { ok } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
+
+it(<span class="hljs-string">"should be fine"</span>, <span class="hljs-keyword">async</span> () =&gt; {
+  expect(<span class="hljs-keyword">await</span> myResultyFunction()).toEqual(ok(<span class="hljs-string">"all is well"</span>));
+});</code></pre>
+				<p>If you only want to check if a call succeeded for failed, try just checking for the presence of &quot;ok&quot; or &quot;error&quot; for a nice readable test:</p>
+				<pre><code class="language-javascript">it(<span class="hljs-string">"should be fine"</span>, <span class="hljs-keyword">async</span> () =&gt; {
+  expect(<span class="hljs-keyword">await</span> myResultyFunction()).toHaveProperty(<span class="hljs-string">"ok"</span>);
+});</code></pre>
+				<p>For more complicated checks you can use <code>okOrThrow/Error</code> to throw an error if the
+				result isn&#39;t what you expect, and otherwise extract the payload for further testing. For example:</p>
+				<pre><code class="language-javascript">expect(okOrThrow(<span class="hljs-keyword">await</span> myResultyFunction())).toContain(<span class="hljs-string">"is well"</span>);</code></pre>
 				<h2 id="background">Background</h2>
+				<h3 id="async-error-handling">Async Error Handling</h3>
 				<p><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function"><code>async</code>/<code>await</code></a> has been a huge win for avoiding the dreaded Pyramid of doom in JavaScript.</p>
 				<p>These bad days are behind us forever:</p>
 				<pre><code class="language-javascript">someFunction(data, (err, data) =&gt; {
@@ -149,7 +211,7 @@ pipeAsync(
   {<span class="hljs-symbol">:ok</span>, data} -&gt; do_something(data)
   {<span class="hljs-symbol">:error</span>, msg} -&gt; do_something_else(msg)
 <span class="hljs-keyword">end</span></code></pre>
-				<p>But <code>result-async</code> tries to make it easy to create and handle Results - even when they come from async functions:</p>
+				<p>We don&#39;t have that in JavaScript, but <code>result-async</code> tries to make it easy to create and handle <code>Result</code>s - even when they come from async functions:</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { either } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
 
 either(
@@ -157,6 +219,10 @@ either(
   <span class="hljs-function"><span class="hljs-params">data</span> =&gt;</span> doSomething(data),
   <span class="hljs-function"><span class="hljs-params">msg</span> =&gt;</span> doSomethingElse(msg)
 );</code></pre>
+				<h3 id="readable-pipes">Readable pipes</h3>
+				<h3 id="what-about-fantasy-land">What about Fantasy-Land</h3>
+				<p>If you come from a Haskell-y background, you might be saying, &quot;hey, <code>Result</code> is just an <code>Either</code> type, and <code>okThen</code> is just <code>map</code>&quot;. You&#39;re right! And if you&#39;re looking for more abstract functional programming, you may be interested in libraries like <a href="https://github.com/sanctuary-js/sanctuary">Sanctuary</a> or <a href="https://github.com/origamitower/folktale">Folktalk</a>, which provide a Fantasy-Land compatible Either and Result types, respectively. <a href="https://github.com/fluture-js/Fluture">Fluture</a> is also a great tool for Fantasy-Land compatible asynchronous programming.</p>
+				<p>But if your team isn&#39;t ready that all that, think of <code>Result-Async</code> like a gateway drug for full ADT-style programming. It lets you write composable, functional programs, but with functions names that are trying to be friendlier to people who don&#39;t think in monands.</p>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -179,19 +245,7 @@ either(
 						<a href="globals.html#allok" class="tsd-kind-icon">all<wbr>Ok</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#asyncchainerror" class="tsd-kind-icon">async<wbr>Chain<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#asyncchainok" class="tsd-kind-icon">async<wbr>Chain<wbr>Ok</a>
-					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#chainerror" class="tsd-kind-icon">chain<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#chainok" class="tsd-kind-icon">chain<wbr>Ok</a>
-					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#collectoks" class="tsd-kind-icon">collect<wbr>Oks</a>
+						<a href="globals.html#allokasync" class="tsd-kind-icon">all<wbr>OkAsync</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#createpipeasync" class="tsd-kind-icon">create<wbr>Pipe<wbr>Async</a>
@@ -201,6 +255,27 @@ either(
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#error" class="tsd-kind-icon">error</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#errordo" class="tsd-kind-icon">error<wbr>Do</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#errordoasync" class="tsd-kind-icon">error<wbr>DoAsync</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#errororthrow" class="tsd-kind-icon">error<wbr>OrThrow</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#errorreplace" class="tsd-kind-icon">error<wbr>Replace</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#errorrescue" class="tsd-kind-icon">error<wbr>Rescue</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#errorrescueasync" class="tsd-kind-icon">error<wbr>Rescue<wbr>Async</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#errorthen" class="tsd-kind-icon">error<wbr>Then</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#firstok" class="tsd-kind-icon">first<wbr>Ok</a>
@@ -215,25 +290,34 @@ either(
 						<a href="globals.html#isresult" class="tsd-kind-icon">is<wbr>Result</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#errorThen" class="tsd-kind-icon">map<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#okThen" class="tsd-kind-icon">map<wbr>Ok</a>
-					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#ok" class="tsd-kind-icon">ok</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#okchain" class="tsd-kind-icon">ok<wbr>Chain</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#okchainasync" class="tsd-kind-icon">ok<wbr>Chain<wbr>Async</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#okdo" class="tsd-kind-icon">ok<wbr>Do</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#okdoasync" class="tsd-kind-icon">ok<wbr>DoAsync</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#okorthrow" class="tsd-kind-icon">ok<wbr>OrThrow</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#okreplace" class="tsd-kind-icon">ok<wbr>Replace</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#okthen" class="tsd-kind-icon">ok<wbr>Then</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#pipeasync" class="tsd-kind-icon">pipe<wbr>Async</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#promisetoresult" class="tsd-kind-icon">promise<wbr>ToResult</a>
-					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#replaceerror" class="tsd-kind-icon">replace<wbr>Error</a>
-					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#replaceok" class="tsd-kind-icon">replace<wbr>Ok</a>
 					</li>
 					<li class=" tsd-kind-function">
 						<a href="globals.html#resulttoboolean" class="tsd-kind-icon">result<wbr>ToBoolean</a>

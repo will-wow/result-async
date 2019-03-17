@@ -9,6 +9,13 @@ A library for handling errors with types and without exceptions - even asynchron
 [![David Dependency Status](https://david-dm.org/will-wow/result-async.svg)](https://david-dm.org/will-wow/result-async)
 [![codecov](https://codecov.io/gh/will-wow/result-async/branch/master/graph/badge.svg)](https://codecov.io/gh/will-wow/result-async)
 
+`result-async` focuses on making a few things easier in JavaScript/TypeScript:
+
+1. Predictable error handling for synchronous and asynchronous functions
+1. Handling errors in pipelines of synchronous and asynchronous functions
+1. Making pipelines easy to read
+1. Giving friendly names to proven functional programming concepts
+
 ## Install
 
 ```bash
@@ -29,18 +36,53 @@ import { ok, okThen, okChainAsync, Result } from "result-async";
 
 ## Examples
 
+Here are some example of what working with `result-async` looks like.
+For more examples, and complete documentation, see
+[the docs](https://will-wow.github.io/result-async/)
+
 ### Full Example
 
-```typescript
-const fetchArticleCommentIds = articleId =>
-  fetch(`http://example.com/articles${articleId}`);
+`result-async` helps you handle errors in a controlled, readable, and typesafe way,
+using techniques from functional programming.
 
-const fetchCommentData = commentId => pipeAsync(someData);
+Here's an example of the sort of data-processing pipelines you can build:
+
+```typescript
+async function countAllComments(postsCache: PostsCache): Promise<number> {
+  return pipeAsync(
+    promiseToResult(postsCache.getCache()),
+    errorDo(console.error),
+    errorRescueAsync(fetchPosts),
+    okDo(logPostCount),
+    okDoAsync(postsCache.updateCache),
+    okThen(R.map(fetchCommentsForPost)),
+    okChainAsync(allOkAsync),
+    okThen(R.map(comments => comments.length)),
+    okThen(R.sum),
+    okDo(logCommentTotal),
+    okOrThrow
+  );
+}
 ```
+
+The basic premise is functions that start with `ok` will only operate on successful data,
+and pass on error messages.
+Functions that start with `error` will only operate on error messages, and either change
+or try to rescue them back into successes.
+
+Prefixing the function names makes it easy to scan a pipeline and find the error handling code.
+
+Other functions transform other data structures to `Result`s (like `promiseToResult`),
+or handle collections of `Result`s (like `allOkAsync`).
+
+Functions ending in `async` will return a `Promise` that resolves to a `Result`. This helps
+TypeScript track types, and helps developers differentiate between pure and impure functions.
+
+See [./src/full-example](https://github.com/will-wow/result-async/blob/master/src/full-example.ts) for a full working example.
 
 ### Techniques
 
-You can react to errors inline:
+#### React to errors inline
 
 ```typescript
 import { isError } from "result-async";
@@ -50,7 +92,7 @@ const result = await tryToGetAListOfComments("my-blog-post");
 const comments = isOk(result) ? result.ok : [];
 ```
 
-Return a success or failure status:
+#### Return a success or failure status
 
 ```typescript
 import { ok, error } from "result-async";
@@ -58,32 +100,53 @@ import { ok, error } from "result-async";
 return isAllWell() ? ok("all is well") : error("all is lost");
 ```
 
-And you can pipe functions - both synchronous and asynchronous ones - together for a big data-handling pipeline:
+#### Kick off asynchronous calls without waiting for a response
 
 ```typescript
-import {
-  resultify,
-  okChainAsync,
-  errorThen,
-  okThen,
-  errorRescue
-} from "result-async";
-
 pipeAsync(
-  someData,
-  resultify(someAsyncFunction),
-  okThen(transformData),
-  okChainAsync(anotherAsyncFunction),
-  errorThen(logError),
-  errorRescue(tryToRescueError)
+  fetchUser(),
+  errorDo(sendErrorToLoggingSystem)
+  errorRescueAsync(logOutUser)
 );
 ```
 
-See [the docs](https://github.com/will-wow/result-async) for the full API documentation.
+#### Transform promise functions into result functions
+
+```typescript
+import { resultify } from "result-async";
+
+const fetchResult = resultify(fetch)
+
+pipeAsync(
+  someUrl,
+  fetchResult,
+  errorThen(transformError)
+  okChainAsync(anotherAsyncFunction)
+);
+```
+
+#### Return standard promises to interop with other functions
+
+```typescript
+function doStuff(): Promise<SomeData> {
+  return pipeAsync(
+    someResultFunction,
+    okChain(validateData),
+    errorReplace("something went wrong"),
+    okOrThrow
+  );
+}
+```
 
 ## Typescript
 
 `result-async` is written in TypeScript, and it's built to help write typesafe error handling code. But it works great with vanilla JavaScript too!
+
+One of the big benefits of adding `Result`s to `Promise`s is `Promise`s don't have type information about their error cases. But many promises have predictable error types, and
+you can have your asynchronous functions return a `ResultP` to encode those errors types
+in the type system.
+
+Also `ResultP`s should _always_ resolve and never be rejected. This means no more `try/catch` blocks, even when using `async/await`.
 
 ### Types
 
@@ -94,13 +157,13 @@ type Result<OkData, ErrorMessage> = OkResult<Data> | ErrorResult<Message>;
 type ResultP<OkData, ErrorMessage> = Promise<Result<OkData, ErrorMessage>>;
 ```
 
-So a result could be either Ok or an Error - and either way, the payload is strongly typed.
-
-`ResultP` is just a promise that wraps a `Result`. Async functions can return a `ResultP`, so that success and failure both have types after an `await`;
+So a `Result` could be either Ok or an Error - and either way, the payload is strongly typed.
 
 ### Guards
 
-`isOk(result)` and `isError(result)` are both typeguards, so if `isOk` returns true, typescript will know the Result is actually an OkResult:
+[`isOk(result)`](https://will-wow.github.io/result-async/globals.html#isok) and
+[`isError(result)`](https://will-wow.github.io/result-async/globals.html#iserror) are both
+typeguards, so if `isOk` returns true, typescript will know the Result is actually an OkResult:
 
 ```typescript
 function(result: Result<number, string>) {
@@ -147,6 +210,8 @@ expect(okOrThrow(await myResultyFunction())).toContain("is well");
 
 ## Background
 
+### Async Error Handling
+
 [`async`/`await`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) has been a huge win for avoiding the dreaded Pyramid of doom in JavaScript.
 
 These bad days are behind us forever:
@@ -190,7 +255,7 @@ case some_async_function() do
 end
 ```
 
-But `result-async` tries to make it easy to create and handle Results - even when they come from async functions:
+We don't have that in JavaScript, but `result-async` tries to make it easy to create and handle `Result`s - even when they come from async functions:
 
 ```typescript
 import { either } from "result-async";
@@ -201,6 +266,8 @@ either(
   msg => doSomethingElse(msg)
 );
 ```
+
+### Readable pipes
 
 ### What about Fantasy-Land
 

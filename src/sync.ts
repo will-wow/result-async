@@ -156,8 +156,9 @@ export function errorRescue<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @returns The original result
  *
  * ```javascript
- * okDo(console.log, ok("hi")) // Logs "hi"
- * okDo(console.log, error(1)) // No log
+ * const result = fetchData();
+ * // Log the data if the fetch succeeded.
+ * okDo(console.log);
  * ```
  */
 export function okDo<OkData, ErrorMessage>(f: (ok: OkData) => any) {
@@ -179,8 +180,9 @@ export function okDo<OkData, ErrorMessage>(f: (ok: OkData) => any) {
  * @returns The original result
  *
  * ```javascript
- * errorDo(console.error)(ok("hi")) // No log
- * errorDo(console.error)(error(1)) // Logs 1
+ * const result = fetchData();
+ * // Log an error if the fetch failed.
+ * errorDo(console.error)(result);
  * ```
  */
 export function errorDo<OkData, ErrorMessage>(f: (ok: ErrorMessage) => any) {
@@ -270,17 +272,14 @@ export function okOrThrow<OkData>(result: Result<OkData, any>): OkData {
 }
 
 /**
- * Get the error message from a result. If it's an Ok, throw an error.
+ * Get the error message from a result. If it's an Ok instead, throw an error.
  * @returns the error message
  *
- * @example
  * ```typescript
- * const errorResult = error("bad");
- * errorOrThrow(result);
+ * errorOrThrow(error("bad"));
  * // "bad"
  *
- * const okResult = ok("good");
- * errorOrThrow(result);
+ * errorOrThrow(ok("good"));
  * // throws new Error("good")
  * ```
  */
@@ -298,6 +297,22 @@ export function errorOrThrow<ErrorMessage>(
  * @param onError - Function to run if the result is an Error
  * @param result - Result to match against
  * @returns The return value of the function that gets run.
+ *
+ * ```javascript
+ * // Use `either` to unwrap a Result.
+ * const userId = either(
+ *   await fetchAUser(),
+ *   user => user.id,
+ *   () => null
+ * )
+ *
+ * // Use `either` to act on both cases, but leave wrapped.
+ * const userId = either(
+ *   await fetchAUser(),
+ *   user => ok(user.id),
+ *   () => error("not found")
+ * )
+ * ```
  */
 export function either<OkData, ErrorMessage, OkOutput, ErrorOutput>(
   result: Result<OkData, ErrorMessage>,
@@ -317,6 +332,11 @@ export function either<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * Converts a result to a boolean.
  * @param result
  * @returns true if Ok, false if Error
+ *
+ * ```javascript
+ * resultToBoolean(ok(1)) // true
+ * resultToBoolean(error(1)) // false
+ * ```
  */
 export function resultToBoolean(result: Result<any, any>): boolean {
   return isOk(result) ? true : false;

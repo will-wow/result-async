@@ -8,12 +8,20 @@ export type Result<OkData, ErrorMessage> =
 /**
  * Wraps data in an Ok.
  * @param data The success payload
+ *
+ * ```javascript
+ * ok(1)
+ * ```
  */
 export const ok = <T>(data: T): OkResult<T> => new OkResult(data);
 
 /**
  * Wraps a message in an Error.
  * @param data The success payload
+ *
+ * ```javascript
+ * error("not found")
+ * ```
  */
 export const error = <T>(message: T): ErrorResult<T> =>
   new ErrorResult(message);
@@ -21,6 +29,14 @@ export const error = <T>(message: T): ErrorResult<T> =>
 /**
  * Type guard to check if a Result is Ok
  * @param result - The result to check
+ *
+ * ```javascript
+ * const result = ok(1);
+ *
+ * if (isOk(result)) {
+ *   result.ok // exists
+ * }
+ * ```
  */
 export const isOk = (result: Result<any, any>): result is OkResult<any> =>
   (result as OkResult<any>).ok !== undefined;
@@ -28,6 +44,14 @@ export const isOk = (result: Result<any, any>): result is OkResult<any> =>
 /**
  * Type guard to check if a Result is an Error
  * @param result - The result to check
+ *
+ * ```javascript
+ * const result = error("not found");
+ *
+ * if (isError(result)) {
+ *   result.error // exists
+ * }
+ * ```
  */
 export const isError = (result: Result<any, any>): result is ErrorResult<any> =>
   (result as ErrorResult<any>).error !== undefined;
@@ -35,6 +59,12 @@ export const isError = (result: Result<any, any>): result is ErrorResult<any> =>
 /**
  * Type guard to check if an object is a Result.
  * @param result - The object to check
+ *
+ * ```javascript
+ * const result = ;
+ *
+ * isResult(error("not found")) // true
+ * ```
  */
 export const isResult = (
   result: Result<any, any> | any

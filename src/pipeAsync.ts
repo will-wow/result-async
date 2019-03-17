@@ -5,8 +5,10 @@ type WrapPromise<T> = T extends Promise<any> ? T : Promise<T>;
 /**
  * Pipe the first argument through a series of transforming functions,
  * where each function takes the return from the previous one.
+ *
  * Functions either return a promise or a normal value, and will always
  * receive a non-promise value for their argument.
+ *
  * Similar to Ramda's `pipeP`, but allows non-promise return values, and is not curried.
  * @param start - The value to start with. May be a promise.
  * @param fs - The functions to pipe the value through.
@@ -16,10 +18,14 @@ type WrapPromise<T> = T extends Promise<any> ? T : Promise<T>;
  * @examples
  *
  * ```typescript
- * const fetchArticleCommentIds = articleId => fetch(`http://example.com/articles${articleId}`)
- *
  * pipeAsync(
- *   someData
+ *   orderData,
+ *   roundPriceToCents,
+ *   validateOrder,
+ *   okChainAsync(savePendingOrder),
+ *   errorRescue(fetchPendingOrder)
+ *   okChainAsync(placeOrder),
+ *   errorThen(transformError)
  * )
  * ```
  */
@@ -170,13 +176,30 @@ export async function pipeAsync(start: any, ...fs: any) {
 /**
  * Set up a pipeline of transforming functions,
  * where each function takes the return from the previous one.
+ *
  * Functions either return a promise or a normal value, and will always
  * receive a non-promise value for their argument.
+ *
  * Similar to Ramda's `pipeP`, but allows non-promise return values.
  * @param fs - The functions to pipe the value through.
  *             Each function must take a single argument.
  * @param start - The value to start with. May be a promise.
  * @returns a function that takes a value, and sends it through the pipeline.
+ *
+ * ```javascript
+ * // Create pipe
+ * const placeOrderAtPrice = createPipeAsync(
+ *   roundPriceToCents,
+ *   validateOrder,
+ *   okChainAsync(savePendingOrder),
+ *   errorRescue(fetchPendingOrder)
+ *   okChainAsync(placeOrder),
+ *   errorThen(transformError)
+ * )
+ *
+ * // Use pipe
+ * placeOrderAtPrice({ item, price: "10.00" });
+ * ```
  */
 export function createPipeAsync<In, Out1, OutLast>(
   f1: AsyncUnary<In, Out1>,

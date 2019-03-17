@@ -14,9 +14,7 @@ import { pipeAsync } from "./pipeAsync";
  *
  * ```javascript
  * allOk([ok(1), ok(2), ok(3)]) // ok([1, 2, 3])
- * ```
  *
- * ```javascript
  * allOk([ok(1), error(2), error(3)]) // error(2)
  * ```
  */
@@ -44,7 +42,6 @@ export function allOk<OkData, ErrorMessage>(
  * If any are any promise OR result errors, returns the first error(msg)
  *
  * ```javascript
- *
  * function countComments(postId) {
  *   return pipeAsync(
  *     fetchAllComments(postId),
@@ -66,6 +63,11 @@ export async function allOkAsync<OkData, ErrorMessage>(
 
 /**
  * Find and return the first ok(data) in the collection. If there are no Ok values, return error(null)
+ *
+ * ```javascript
+ * allOk([error(1), error(2), ok(3), ok(4)]) // ok(3)
+ * allOk([error(1), error(2)]) // error(null)
+ * ```
  */
 export function firstOk<OkData>(
   results: Result<OkData, any>[]
