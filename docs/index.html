@@ -71,7 +71,7 @@
 				<p>or</p>
 				<pre><code class="language-bash">yarn add result-async</code></pre>
 				<p>Then import the functions and (in TypeScript) types you need:</p>
-				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ok, ifOk, asyncChainOk, Result } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;</code></pre>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ok, ifOk, chainOkAsync, Result } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;</code></pre>
 				<h2 id="examples">Examples</h2>
 				<p>You can react to errors inline:</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { isError } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
@@ -86,19 +86,19 @@
 				<p>And you can pipe functions - both synchronous and asynchronous ones - together for a big data-handling pipeline:</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {
   resultify,
-  asyncChainOk,
+  chainOkAsync,
   ifError,
   ifOk,
-  chainError
+  rescueError
 } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
 
 pipeAsync(
   someData,
   resultify(someAsyncFunction),
   ifOk(transformData),
-  asyncChainOk(anotherAsyncFunction),
+  chainOkAsync(anotherAsyncFunction),
   ifError(logError),
-  chainError(tryToRescueError)
+  rescueError(tryToRescueError)
 );</code></pre>
 				<p>See <a href="https://github.com/will-wow/result-async">the docs</a> for the full API documentation.</p>
 				<h2 id="typescript">Typescript</h2>

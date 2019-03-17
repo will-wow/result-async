@@ -24,7 +24,7 @@ yarn add result-async
 Then import the functions and (in TypeScript) types you need:
 
 ```typescript
-import { ok, ifOk, asyncChainOk, Result } from "result-async";
+import { ok, ifOk, chainOkAsync, Result } from "result-async";
 ```
 
 ## Examples
@@ -63,19 +63,19 @@ And you can pipe functions - both synchronous and asynchronous ones - together f
 ```typescript
 import {
   resultify,
-  asyncChainOk,
+  chainOkAsync,
   ifError,
   ifOk,
-  chainError
+  rescueError
 } from "result-async";
 
 pipeAsync(
   someData,
   resultify(someAsyncFunction),
   ifOk(transformData),
-  asyncChainOk(anotherAsyncFunction),
+  chainOkAsync(anotherAsyncFunction),
   ifError(logError),
-  chainError(tryToRescueError)
+  rescueError(tryToRescueError)
 );
 ```
 

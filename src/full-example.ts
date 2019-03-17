@@ -1,7 +1,7 @@
 import fetch from "cross-fetch";
 import {
   asyncAllOk,
-  asyncOkSideEffect,
+  doOnOkAsync,
   ifOk,
   isError,
   isOk,
@@ -11,9 +11,9 @@ import {
   resultify,
   ResultP
 } from "./index";
-import { asyncChainOk, asyncChainError } from "./async";
+import { chainOkAsync, rescueErrorAsync } from "./async";
 import * as R from "ramda";
-import { errorSideEffect, okOrThrow, okSideEffect } from "./sync";
+import { doOnError, okOrThrow, doOnOk } from "./sync";
 import { allOk } from "./collection";
 
 interface Post {
@@ -41,16 +41,16 @@ const baseUrl = "https://jsonplaceholder.typicode.com";
 async function countAllComments(postsCache: PostsCache): Promise<number> {
   return pipeAsync(
     promiseToResult(postsCache.getCache()),
-    errorSideEffect(console.error),
-    asyncChainError(_x => get<Post[]>("/posts")),
-    errorSideEffect(e => console.error("failed to get posts", e)),
-    okSideEffect(posts => console.log(`found ${posts.length} posts`)),
-    asyncOkSideEffect(postsCache.updateCache),
+    doOnError(console.error),
+    rescueErrorAsync(() => get<Post[]>("/posts")),
+    doOnError(e => console.error("failed to get posts", e)),
+    doOnOk(posts => console.log(`found ${posts.length} posts`)),
+    doOnOkAsync(postsCache.updateCache),
     ifOk(R.map(post => get<Comment[]>(`/comments?postId=${post.id}`))),
-    asyncChainOk(asyncAllOk),
+    chainOkAsync(asyncAllOk),
     ifOk(R.map(comments => comments.length)),
     ifOk(R.sum),
-    okSideEffect(total => console.log("total:", total)),
+    doOnOk(total => console.log("total:", total)),
     okOrThrow
   );
 }
@@ -134,7 +134,7 @@ function promiseGet<T>(url: string): Promise<T> {
 function get<T>(url: string): ResultP<T, any> {
   return pipeAsync(
     fetchResult(`${baseUrl}${url}`),
-    asyncChainOk(res => promiseToResult(res.json()))
+    chainOkAsync(res => promiseToResult(res.json()))
   );
 }
 

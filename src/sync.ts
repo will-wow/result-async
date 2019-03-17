@@ -134,7 +134,7 @@ export function chainOk<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * rescueNotFound(error("network error")) // error("network error")
  * ```
  */
-export function chainError<OkData, ErrorMessage, OkOutput, ErrorOutput>(
+export function rescueError<OkData, ErrorMessage, OkOutput, ErrorOutput>(
   f: (ok: ErrorMessage) => Result<OkOutput, ErrorOutput>
 ) {
   return (
@@ -156,11 +156,11 @@ export function chainError<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * @returns The original result
  *
  * ```javascript
- * okSideEffect(console.log, ok("hi")) // Logs "hi"
- * okSideEffect(console.log, error(1)) // No log
+ * doOnOk(console.log, ok("hi")) // Logs "hi"
+ * doOnOk(console.log, error(1)) // No log
  * ```
  */
-export function okSideEffect<OkData, ErrorMessage>(f: (ok: OkData) => any) {
+export function doOnOk<OkData, ErrorMessage>(f: (ok: OkData) => any) {
   return function(
     result: Result<OkData, ErrorMessage>
   ): Result<OkData, ErrorMessage> {
@@ -179,11 +179,11 @@ export function okSideEffect<OkData, ErrorMessage>(f: (ok: OkData) => any) {
  * @returns The original result
  *
  * ```javascript
- * errorSideEffect(console.error)(ok("hi")) // No log
- * errorSideEffect(console.error)(error(1)) // Logs 1
+ * doOnError(console.error)(ok("hi")) // No log
+ * doOnError(console.error)(error(1)) // Logs 1
  * ```
  */
-export function errorSideEffect<OkData, ErrorMessage>(
+export function doOnError<OkData, ErrorMessage>(
   f: (ok: ErrorMessage) => any
 ) {
   return function(

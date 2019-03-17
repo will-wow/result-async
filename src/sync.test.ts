@@ -6,7 +6,7 @@ import {
   ifError,
   ifOk,
   chainOk,
-  chainError,
+  rescueError,
   replaceError,
   replaceOk,
   resultToBoolean
@@ -54,8 +54,8 @@ describe("examples", () => {
     expect(chainOk(positiveAdder)(ok(-1))).toEqual(error("only positive"));
   });
 
-  it("runs the chainError example", () => {
-    const rescueNotFound = chainError((errorMessage: string) =>
+  it("runs the rescueError example", () => {
+    const rescueNotFound = rescueError((errorMessage: string) =>
       errorMessage === "not found" ? ok("unknown") : error(errorMessage)
     );
 
@@ -78,9 +78,9 @@ describe("mappers", () => {
     [ok(1), chainOk, add1Ok, ok(2)],
     [ok(1), chainOk, add1Error, error(2)],
     [error(1), chainOk, add1Ok, error(1)],
-    [ok(1), chainError, add1Ok, ok(1)],
-    [error(1), chainError, add1Ok, ok(2)],
-    [error(1), chainError, add1Error, error(2)],
+    [ok(1), rescueError, add1Ok, ok(1)],
+    [error(1), rescueError, add1Ok, ok(2)],
+    [error(1), rescueError, add1Error, error(2)],
     // replace
     [ok(1), replaceOk, "good", ok("good")],
     [error(1), replaceOk, "good", error(1)],

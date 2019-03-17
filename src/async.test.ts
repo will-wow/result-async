@@ -3,8 +3,8 @@ import {
   promiseToResult,
   resultify,
   ResultP,
-  asyncChainOk,
-  asyncChainError
+  chainOkAsync,
+  rescueErrorAsync
 } from "./async";
 
 type TestCase = [
@@ -20,11 +20,11 @@ const asyncAdd1Error = (n: number) => Promise.resolve(error(n + 1));
 describe("async", () => {
   describe("mappers", () => {
     const testCases: TestCase[] = [
-      [ok(1), asyncChainOk, asyncAdd1Ok, ok(2)],
-      [ok(1), asyncChainOk, asyncAdd1Error, error(2)],
-      [error(1), asyncChainOk, asyncAdd1Ok, error(1)],
-      [ok(1), asyncChainError, asyncAdd1Ok, ok(1)],
-      [error(1), asyncChainError, asyncAdd1Ok, ok(2)]
+      [ok(1), chainOkAsync, asyncAdd1Ok, ok(2)],
+      [ok(1), chainOkAsync, asyncAdd1Error, error(2)],
+      [error(1), chainOkAsync, asyncAdd1Ok, error(1)],
+      [ok(1), rescueErrorAsync, asyncAdd1Ok, ok(1)],
+      [error(1), rescueErrorAsync, asyncAdd1Ok, ok(2)]
     ];
 
     testCases.map(([result, testedFunction, f, expected]) => {
