@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Side-effect-only `do` functions
+- allOkAsync
+
+### Changed
+
+- Pipeable function names to be prefixed with `ok` or `error`
+- Better type inference for pipeAsync
+
 ## [1.1.0]
 
 ### Added
@@ -15,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Function names from mapOk to ifOk
+- Function names from mapOk/Error to ifOk/Error
 
 ## [1.0.0]
 

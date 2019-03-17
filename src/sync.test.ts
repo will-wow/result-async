@@ -1,14 +1,16 @@
 import { ok, error, Result } from "./result";
 import {
-  errorOrThrow,
-  okOrThrow,
-  chainError,
-  chainOk,
   either,
-  ifError,
-  ifOk,
-  replaceError,
-  replaceOk,
+  errorDo,
+  errorOrThrow,
+  errorReplace,
+  errorRescue,
+  errorThen,
+  okChain,
+  okDo,
+  okOrThrow,
+  okReplace,
+  okThen,
   resultToBoolean
 } from "./sync";
 
@@ -24,22 +26,73 @@ type TestCase = [
   Result<any, any>
 ];
 
+describe("examples", () => {
+  it("runs the okThen example", () => {
+    function anyAdder(n: number) {
+      return n + 1;
+    }
+
+    expect(okThen(anyAdder)(ok(1))).toEqual(ok(2));
+    expect(okThen(anyAdder)(error("bad"))).toEqual(error("bad"));
+    expect(okThen(anyAdder)(ok(-1))).toEqual(ok(0));
+  });
+
+  it("runs the errorThen example", () => {
+    const normalizeErrorCase = errorThen((message: string) =>
+      message.toLowerCase()
+    );
+
+    expect(normalizeErrorCase(ok("alice"))).toEqual(ok("alice"));
+    expect(normalizeErrorCase(error("NOT FOUND"))).toEqual(error("not found"));
+  });
+
+  it("runs the okChain example", () => {
+    function positiveAdder(n: number) {
+      return n < 0 ? error("only positive") : ok(n + 1);
+    }
+
+    expect(okChain(positiveAdder)(ok(1))).toEqual(ok(2));
+    expect(okChain(positiveAdder)(error("bad"))).toEqual(error("bad"));
+    expect(okChain(positiveAdder)(ok(-1))).toEqual(error("only positive"));
+  });
+
+  it("runs the errorRescue example", () => {
+    const rescueNotFound = errorRescue((errorMessage: string) =>
+      errorMessage === "not found" ? ok("unknown") : error(errorMessage)
+    );
+
+    expect(rescueNotFound(ok("alice"))).toEqual(ok("alice"));
+    expect(rescueNotFound(error("not found"))).toEqual(ok("unknown"));
+    expect(rescueNotFound(error("network error"))).toEqual(
+      error("network error")
+    );
+  });
+});
+
 describe("mappers", () => {
   const testCases: TestCase[] = [
-    [ok(1), ifOk, add1, ok(2)],
-    [error(1), ifOk, add1, error(1)],
-    [ok(1), ifError, add1, ok(1)],
-    [error(1), ifError, add1, error(2)],
-    [ok(1), chainOk, add1Ok, ok(2)],
-    [ok(1), chainOk, add1Error, error(2)],
-    [error(1), chainOk, add1Ok, error(1)],
-    [ok(1), chainError, add1Ok, ok(1)],
-    [error(1), chainError, add1Ok, ok(2)],
-    [error(1), chainError, add1Error, error(2)],
-    [ok(1), replaceOk, "good", ok("good")],
-    [error(1), replaceOk, "good", error(1)],
-    [ok(1), replaceError, "bad", ok(1)],
-    [error(1), replaceError, "bad", error("bad")]
+    // map
+    [ok(1), okThen, add1, ok(2)],
+    [error(1), okThen, add1, error(1)],
+    [ok(1), errorThen, add1, ok(1)],
+    [error(1), errorThen, add1, error(2)],
+    // chain
+    [ok(1), okChain, add1Ok, ok(2)],
+    [ok(1), okChain, add1Error, error(2)],
+    [error(1), okChain, add1Ok, error(1)],
+    [ok(1), errorRescue, add1Ok, ok(1)],
+    [error(1), errorRescue, add1Ok, ok(2)],
+    [error(1), errorRescue, add1Error, error(2)],
+    // replace
+    [ok(1), okReplace, "good", ok("good")],
+    [error(1), okReplace, "good", error(1)],
+    [ok(1), errorReplace, "bad", ok(1)],
+    [error(1), errorReplace, "bad", error("bad")],
+    // do
+    [ok(1), okDo, add1, ok(1)],
+    [error(1), okDo, add1, error(1)],
+    [ok(1), errorDo, add1, ok(1)],
+    [error(1), errorDo, add1, error(1)]
   ];
 
   testCases.map(([result, testedFunction, f, expected]) => {
