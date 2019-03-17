@@ -40,19 +40,41 @@ export function ifOk<OkData, ErrorMessage, OkOutput>(
 }
 
 /**
- * Runs a function for side effects on the payload, only if the result is Ok.
+ * Transforms a failed result, and passes through a successful result.
  *
- * @param f - the function to run on the ok data
+ * Takes a mapping function, then a result.
+ * If the result is an Error, applies the function to the data.
+ * If the result is an Ok, passes the Result through unchanged.
+ *
+ * Wraps the output of the function in an Error.
+ *
+ * @param f - the function to run on the error data
  * @param result - The result to match against
- * @returns The original result
+ * @returns - The Result from function f or the Ok result
+ *
+ * @example
+ *
+ * ```javascript
+ * const normalizeErrorCase = ifError(message =>
+ *   message.toLowerCase()
+ * )
+ *
+ * normalizeErrorCase(ok("alice")) // ok("alice")
+ * normalizeErrorCase(error("NOT FOUND")) // error("not found")
+ * ```
  */
-export function okSideEffect<OkData, ErrorMessage>(
-  f: (ok: OkData) => any
-): (result: Result<OkData, ErrorMessage>) => Result<OkData, ErrorMessage> {
-  return ifOk((data: OkData) => {
-    f(data);
-    return data;
-  });
+export function ifError<OkData, ErrorMessage, ErrorOutput>(
+  f: (error: ErrorMessage) => ErrorOutput
+) {
+  return (
+    result: Result<OkData, ErrorMessage>
+  ): Result<OkData, ErrorOutput> => {
+    if (isOk(result)) {
+      return result;
+    }
+
+    return error(f(result.error));
+  };
 }
 
 /**
@@ -96,84 +118,6 @@ export function chainOk<OkData, ErrorMessage, OkOutput, ErrorOutput>(
 }
 
 /**
- * Replaces a value that's wrapped in an {ok: data}
- * Useful if you don't care about the data, just the fact that previous call succeeded.
- *
- * Takes a Result and a mapping function.
- * If the result is an Error, applies the function to the message.
- * If the result is an Ok, passes the Result through unchanged.
- *
- * It wraps the return value in an {error: new_message}.
- * @param f - the function to run on the ok data
- * @param result - The result to match against
- */
-export function replaceOk<OkOutput>(newData: OkOutput) {
-  return <ErrorMessage>(
-    result: Result<any, ErrorMessage>
-  ): Result<OkOutput, ErrorMessage> => {
-    if (isError(result)) {
-      return result;
-    }
-
-    return ok(newData);
-  };
-}
-
-/**
- * Transforms a failed result, and passes through a successful result.
- *
- * Takes a mapping function, then a result.
- * If the result is an Error, applies the function to the data.
- * If the result is an Ok, passes the Result through unchanged.
- *
- * Wraps the output of the function in an Error.
- *
- * @param f - the function to run on the error data
- * @param result - The result to match against
- * @returns - The Result from function f or the Ok result
- *
- * @example
- *
- * ```javascript
- * const normalizeErrorCase = ifError(message =>
- *   message.toLowerCase()
- * )
- *
- * normalizeErrorCase(ok("alice")) // ok("alice")
- * normalizeErrorCase(error("NOT FOUND")) // error("not found")
- * ```
- */
-export function ifError<OkData, ErrorMessage, ErrorOutput>(
-  f: (error: ErrorMessage) => ErrorOutput
-) {
-  return (
-    result: Result<OkData, ErrorMessage>
-  ): Result<OkData, ErrorOutput> => {
-    if (isOk(result)) {
-      return result;
-    }
-
-    return error(f(result.error));
-  };
-}
-
-/**
- * Runs a function for side effects on the payload, only if the result is Error.
- *
- * @param f - the function to run on the error message
- * @param result - The result to match against
- * @returns The original result
- */
-export function errorSideEffect<OkData, ErrorMessage>(
-  f: (error: ErrorMessage) => any
-): (result: Result<OkData, ErrorMessage>) => Result<OkData, ErrorMessage> {
-  return ifError((message: ErrorMessage) => {
-    f(message);
-    return message;
-  });
-}
-
-/**
  * Attempts to rescue failed results. Passes successful ones through.
  *
  * Takes a mapping function, then a result.
@@ -213,6 +157,62 @@ export function chainError<OkData, ErrorMessage, OkOutput, ErrorOutput>(
 }
 
 /**
+ * Runs a function for side effects on the payload, only if the result is Ok.
+ *
+ * @param f - the function to run on the ok data
+ * @param result - The result to match against
+ * @returns The original result
+ */
+export function okSideEffect<OkData, ErrorMessage>(
+  f: (ok: OkData) => any
+): (result: Result<OkData, ErrorMessage>) => Result<OkData, ErrorMessage> {
+  return ifOk((data: OkData) => {
+    f(data);
+    return data;
+  });
+}
+
+/**
+ * Runs a function for side effects on the payload, only if the result is Error.
+ *
+ * @param f - the function to run on the error message
+ * @param result - The result to match against
+ * @returns The original result
+ */
+export function errorSideEffect<OkData, ErrorMessage>(
+  f: (error: ErrorMessage) => any
+): (result: Result<OkData, ErrorMessage>) => Result<OkData, ErrorMessage> {
+  return ifError((message: ErrorMessage) => {
+    f(message);
+    return message;
+  });
+}
+
+/**
+ * Replaces a value that's wrapped in an {ok: data}
+ * Useful if you don't care about the data, just the fact that previous call succeeded.
+ *
+ * Takes a Result and a mapping function.
+ * If the result is an Error, applies the function to the message.
+ * If the result is an Ok, passes the Result through unchanged.
+ *
+ * It wraps the return value in an {error: new_message}.
+ * @param f - the function to run on the ok data
+ * @param result - The result to match against
+ */
+export function replaceOk<OkOutput>(newData: OkOutput) {
+  return <ErrorMessage>(
+    result: Result<any, ErrorMessage>
+  ): Result<OkOutput, ErrorMessage> => {
+    if (isError(result)) {
+      return result;
+    }
+
+    return ok(newData);
+  };
+}
+
+/**
  * Replaces a value that's wrapped in an {error: data}
  * Useful if you don't care about the data, just the fact that previous call failed.
  *
@@ -232,36 +232,6 @@ export function replaceError<ErrorOutput>(newError: ErrorOutput) {
 
     return error(newError);
   };
-}
-
-/**
- * Takes a result, and runs either an onOk or onError function on it.
- * @param onOk - Function to run if the result is an Ok
- * @param onError - Function to run if the result is an Error
- * @param result - Result to match against
- * @returns The return value of the function that gets run.
- */
-export function either<OkData, ErrorMessage, OkOutput, ErrorOutput>(
-  result: Result<OkData, ErrorMessage>,
-  onOk: (ok: OkData) => OkOutput,
-  onError: (error: ErrorMessage) => ErrorOutput
-): OkOutput | ErrorOutput {
-  if (isOk(result)) {
-    return onOk(result.ok);
-  }
-  if (isError(result)) {
-    return onError(result.error);
-  }
-  throw new Error("invalid result");
-}
-
-/**
- * Converts a result to a boolean.
- * @param result
- * @returns true if Ok, false if Error
- */
-export function resultToBoolean(result: Result<any, any>): boolean {
-  return isOk(result) ? true : false;
 }
 
 /**
@@ -306,4 +276,34 @@ export function errorOrThrow<ErrorMessage>(
   if (isOk(result)) throw new Error(result.ok);
 
   return result.error;
+}
+
+/**
+ * Takes a result, and runs either an onOk or onError function on it.
+ * @param onOk - Function to run if the result is an Ok
+ * @param onError - Function to run if the result is an Error
+ * @param result - Result to match against
+ * @returns The return value of the function that gets run.
+ */
+export function either<OkData, ErrorMessage, OkOutput, ErrorOutput>(
+  result: Result<OkData, ErrorMessage>,
+  onOk: (ok: OkData) => OkOutput,
+  onError: (error: ErrorMessage) => ErrorOutput
+): OkOutput | ErrorOutput {
+  if (isOk(result)) {
+    return onOk(result.ok);
+  }
+  if (isError(result)) {
+    return onError(result.error);
+  }
+  throw new Error("invalid result");
+}
+
+/**
+ * Converts a result to a boolean.
+ * @param result
+ * @returns true if Ok, false if Error
+ */
+export function resultToBoolean(result: Result<any, any>): boolean {
+  return isOk(result) ? true : false;
 }
