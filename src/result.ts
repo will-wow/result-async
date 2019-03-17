@@ -59,7 +59,7 @@ class OkResult<T> {
   }
 
   "fantasy-land/map"<U>(f: (ok: T) => U): OkResult<U> {
-    return ok(f(this.ok));
+    return this.map(f);
   }
 }
 

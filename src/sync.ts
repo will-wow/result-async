@@ -183,9 +183,7 @@ export function okDo<OkData, ErrorMessage>(f: (ok: OkData) => any) {
  * errorDo(console.error)(error(1)) // Logs 1
  * ```
  */
-export function errorDo<OkData, ErrorMessage>(
-  f: (ok: ErrorMessage) => any
-) {
+export function errorDo<OkData, ErrorMessage>(f: (ok: ErrorMessage) => any) {
   return function(
     result: Result<OkData, ErrorMessage>
   ): Result<OkData, ErrorMessage> {

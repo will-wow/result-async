@@ -1,11 +1,13 @@
 import { ok, error, Result } from "./result";
 import {
   either,
+  errorDo,
   errorOrThrow,
   errorReplace,
   errorRescue,
   errorThen,
   okChain,
+  okDo,
   okOrThrow,
   okReplace,
   okThen,

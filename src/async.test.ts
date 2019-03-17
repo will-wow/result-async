@@ -1,10 +1,12 @@
 import { ok, error, Result } from "./result";
 import {
+  errorRescueAsync,
+  okChainAsync,
+  okDoAsync,
+  errorDoAsync,
   promiseToResult,
   resultify,
-  ResultP,
-  okChainAsync,
-  errorRescueAsync
+  ResultP
 } from "./async";
 
 type TestCase = [
@@ -33,6 +35,42 @@ describe("async", () => {
       } to change ${result.toString()} to ${expected.toString()}`, async () => {
         expect(await testedFunction(f)(result)).toEqual(expected);
       });
+    });
+  });
+
+  describe("okDoAsync", () => {
+    let f: (x: any) => any;
+
+    beforeEach(() => {
+      f = jest.fn();
+    });
+
+    it("runs a function for side-effects", async () => {
+      expect(await okDoAsync(f)(ok(1))).toEqual(ok(1));
+      expect(f).toHaveBeenCalledWith(1);
+    });
+
+    it("passes through errors", async () => {
+      expect(await okDoAsync(f)(error(1))).toEqual(error(1));
+      expect(f).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("errorDoAsync", () => {
+    let f: (x: any) => any;
+
+    beforeEach(() => {
+      f = jest.fn();
+    });
+
+    it("runs a function for side-effects", async () => {
+      expect(await errorDoAsync(f)(error(1))).toEqual(error(1));
+      expect(f).toHaveBeenCalledWith(1);
+    });
+
+    it("passes through errors", async () => {
+      expect(await errorDoAsync(f)(ok(1))).toEqual(ok(1));
+      expect(f).not.toHaveBeenCalled();
     });
   });
 

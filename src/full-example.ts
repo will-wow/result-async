@@ -41,9 +41,9 @@ const baseUrl = "https://jsonplaceholder.typicode.com";
  * Example of piping sync and async result functions.
  * Count all comments on https://jsonplaceholder.typicode.com
  * May pull from a local cache, or go out to the internet, for Posts.
- * 
+ *
  * Note now it's easy to scan for error handling code by looking at the
- * first character of the functions in the pipe.
+ * first word of the functions in the pipe.
  */
 async function countAllComments(postsCache: PostsCache): Promise<number> {
   return pipeAsync(
