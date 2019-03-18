@@ -38,8 +38,9 @@ export const error = <T>(message: T): ErrorResult<T> =>
  * }
  * ```
  */
-export const isOk = (result: Result<any, any>): result is OkResult<any> =>
-  (result as OkResult<any>).ok !== undefined;
+export function isOk(result: Result<any, any>): result is OkResult<any> {
+  return "ok" in result;
+}
 
 /**
  * Type guard to check if a Result is an Error
@@ -53,8 +54,9 @@ export const isOk = (result: Result<any, any>): result is OkResult<any> =>
  * }
  * ```
  */
-export const isError = (result: Result<any, any>): result is ErrorResult<any> =>
-  (result as ErrorResult<any>).error !== undefined;
+export function isError(result: Result<any, any>): result is ErrorResult<any> {
+  return "error" in result;
+}
 
 /**
  * Type guard to check if an object is a Result.
