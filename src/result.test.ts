@@ -18,7 +18,7 @@ describe("result", () => {
   it("detects ok/error even when undefined", () => {
     expect(isOk(ok(undefined))).toBe(true);
     expect(isError(error(undefined))).toBe(true);
-  })
+  });
 
   it("detects results", () => {
     expect(isResult(okThing)).toBe(true);
