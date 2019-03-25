@@ -27,12 +27,12 @@ export type ResultP<OkData, ErrorMessage> = Promise<
  * )
  * ```
  */
-export function okChainAsync<OkData, ErrorMessage, OkOutput, ErrorOutput>(
+export function okChainAsync<OkData, OkOutput, ErrorOutput>(
   f: (ok: OkData) => ResultP<OkOutput, ErrorOutput>
 ) {
-  return async (
+  return async function<ErrorMessage>(
     result: Result<OkData, ErrorMessage>
-  ): ResultP<OkOutput, ErrorMessage | ErrorOutput> => {
+  ): ResultP<OkOutput, ErrorMessage | ErrorOutput> {
     if (isError(result)) {
       return result;
     }
@@ -61,17 +61,19 @@ export function okChainAsync<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * )
  * ```
  */
-export const errorRescueAsync = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
+export function errorRescueAsync<ErrorMessage, OkOutput, ErrorOutput>(
   f: (ok: ErrorMessage) => ResultP<OkOutput, ErrorOutput>
-) => async (
-  result: Result<OkData, ErrorMessage>
-): ResultP<OkData | OkOutput, ErrorOutput> => {
-  if (isOk(result)) {
-    return result;
-  }
+) {
+  return async function<OkData>(
+    result: Result<OkData, ErrorMessage>
+  ): ResultP<OkData | OkOutput, ErrorOutput> {
+    if (isOk(result)) {
+      return result;
+    }
 
-  return f(result.error);
-};
+    return f(result.error);
+  };
+}
 
 /**
  * Runs a function for side effects on the payload, only if the result is Ok.
@@ -89,8 +91,8 @@ export const errorRescueAsync = <OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * )
  * ```
  */
-export function okDoAsync<OkData, ErrorMessage>(f: (ok: OkData) => any) {
-  return async function(
+export function okDoAsync<OkData>(f: (ok: OkData) => any) {
+  return async function<ErrorMessage>(
     result: Result<OkData, ErrorMessage>
   ): ResultP<OkData, ErrorMessage> {
     if (isOk(result)) {
@@ -116,10 +118,8 @@ export function okDoAsync<OkData, ErrorMessage>(f: (ok: OkData) => any) {
  * )
  * ```
  */
-export function errorDoAsync<OkData, ErrorMessage>(
-  f: (ok: ErrorMessage) => any
-) {
-  return async function(
+export function errorDoAsync<ErrorMessage>(f: (ok: ErrorMessage) => any) {
+  return async function<OkData>(
     result: Result<OkData, ErrorMessage>
   ): ResultP<OkData, ErrorMessage> {
     if (isError(result)) {

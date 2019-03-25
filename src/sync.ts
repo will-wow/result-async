@@ -23,12 +23,10 @@ import { Result, ok, error, isOk, isError } from "./result";
  * ```
  */
 
-export function okThen<OkData, ErrorMessage, OkOutput>(
-  f: (ok: OkData) => OkOutput
-) {
-  return (
+export function okThen<OkData, OkOutput>(f: (ok: OkData) => OkOutput) {
+  return function<ErrorMessage>(
     result: Result<OkData, ErrorMessage>
-  ): Result<OkOutput, ErrorMessage> => {
+  ): Result<OkOutput, ErrorMessage> {
     if (isError(result)) {
       return result;
     }
@@ -59,12 +57,12 @@ export function okThen<OkData, ErrorMessage, OkOutput>(
  * normalizeErrorCase(error("NOT FOUND")) // error("not found")
  * ```
  */
-export function errorThen<OkData, ErrorMessage, ErrorOutput>(
+export function errorThen<ErrorMessage, ErrorOutput>(
   f: (error: ErrorMessage) => ErrorOutput
 ) {
-  return (
+  return function<OkData>(
     result: Result<OkData, ErrorMessage>
-  ): Result<OkData, ErrorOutput> => {
+  ): Result<OkData, ErrorOutput> {
     if (isOk(result)) {
       return result;
     }
@@ -97,12 +95,12 @@ export function errorThen<OkData, ErrorMessage, ErrorOutput>(
  * okThen(positiveAdder)(ok(-1)) // error("only positive")
  * ```
  */
-export function okChain<OkData, ErrorMessage, OkOutput, ErrorOutput>(
+export function okChain<OkData, OkOutput, ErrorOutput>(
   f: (ok: OkData) => Result<OkOutput, ErrorOutput>
 ) {
-  return (
+  return function<ErrorMessage>(
     result: Result<OkData, ErrorMessage>
-  ): Result<OkOutput, ErrorMessage | ErrorOutput> => {
+  ): Result<OkOutput, ErrorMessage | ErrorOutput> {
     if (isError(result)) {
       return result;
     }
@@ -134,12 +132,12 @@ export function okChain<OkData, ErrorMessage, OkOutput, ErrorOutput>(
  * rescueNotFound(error("network error")) // error("network error")
  * ```
  */
-export function errorRescue<OkData, ErrorMessage, OkOutput, ErrorOutput>(
+export function errorRescue<ErrorMessage, OkOutput, ErrorOutput>(
   f: (ok: ErrorMessage) => Result<OkOutput, ErrorOutput>
 ) {
-  return (
+  return function<OkData>(
     result: Result<OkData, ErrorMessage>
-  ): Result<OkData | OkOutput, ErrorOutput> => {
+  ): Result<OkData | OkOutput, ErrorOutput> {
     if (isOk(result)) {
       return result;
     }
@@ -213,9 +211,9 @@ export function errorDo<OkData, ErrorMessage>(f: (ok: ErrorMessage) => any) {
  * ```
  */
 export function okReplace<OkOutput>(newData: OkOutput) {
-  return <ErrorMessage>(
+  return function<ErrorMessage>(
     result: Result<any, ErrorMessage>
-  ): Result<OkOutput, ErrorMessage> => {
+  ): Result<OkOutput, ErrorMessage> {
     if (isError(result)) {
       return result;
     }
@@ -240,7 +238,9 @@ export function okReplace<OkOutput>(newData: OkOutput) {
  * ```
  */
 export function errorReplace<ErrorOutput>(newError: ErrorOutput) {
-  return <OkData>(result: Result<OkData, any>): Result<OkData, ErrorOutput> => {
+  return function<OkData>(
+    result: Result<OkData, any>
+  ): Result<OkData, ErrorOutput> {
     if (isOk(result)) {
       return result;
     }
