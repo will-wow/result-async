@@ -36,7 +36,10 @@ describe("asyncPipe", () => {
 
   describe("createPipeAsync", () => {
     it("sets up an async function", async () => {
-      const asyncAddTwo = createPipeAsync(asyncAddOne, asyncAddOne);
+      const asyncAddTwo: (n: number) => Promise<number> = createPipeAsync(
+        asyncAddOne,
+        asyncAddOne
+      );
 
       expect(await asyncAddTwo(1)).toBe(3);
 
