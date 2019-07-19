@@ -112,35 +112,44 @@
 				or handle collections of <code>Result</code>s (like <code>allOkAsync</code>).</p>
 				<p>Functions ending in <code>async</code> will return a <code>Promise</code> that resolves to a <code>Result</code>. This helps
 				TypeScript track types, and helps developers differentiate between pure and impure functions.</p>
-				<p>See <a href="./src/full-example">./src/full-example</a> for a working version.</p>
+				<p>See <a href="https://github.com/will-wow/result-async/blob/master/src/full-example.ts">./src/full-example</a> for a full working example.</p>
 				<h3 id="techniques">Techniques</h3>
-				<p>You can react to errors inline:</p>
+				<h4 id="react-to-errors-inline">React to errors inline</h4>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { isError } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
 
 <span class="hljs-keyword">const</span> result = <span class="hljs-keyword">await</span> tryToGetAListOfComments(<span class="hljs-string">"my-blog-post"</span>);
 
 <span class="hljs-keyword">const</span> comments = isOk(result) ? result.ok : [];</code></pre>
-				<p>Return a success or failure status:</p>
+				<h4 id="return-a-success-or-failure-status">Return a success or failure status</h4>
 				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ok, error } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
 
 <span class="hljs-keyword">return</span> isAllWell() ? ok(<span class="hljs-string">"all is well"</span>) : error(<span class="hljs-string">"all is lost"</span>);</code></pre>
-				<p>And you can pipe functions - both synchronous and asynchronous ones - together for a big data-handling pipeline:</p>
-				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> {
-  resultify,
-  okChainAsync,
-  errorThen,
-  okThen,
-  errorRescue
-} <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
+				<h4 id="kick-off-asynchronous-calls-without-waiting-for-a-response">Kick off asynchronous calls without waiting for a response</h4>
+				<pre><code class="language-typescript">pipeAsync(
+  fetchUser(),
+  errorDo(sendErrorToLoggingSystem)
+  errorRescueAsync(logOutUser)
+);</code></pre>
+				<h4 id="transform-promise-functions-into-result-functions">Transform promise functions into result functions</h4>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { resultify } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
+
+<span class="hljs-keyword">const</span> fetchResult = resultify(fetch)
 
 pipeAsync(
-  someData,
-  resultify(someAsyncFunction),
-  okThen(transformData),
-  okChainAsync(anotherAsyncFunction),
-  errorThen(logError),
-  errorRescue(tryToRescueError)
+  someUrl,
+  fetchResult,
+  errorThen(transformError)
+  okChainAsync(anotherAsyncFunction)
 );</code></pre>
+				<h4 id="return-standard-promises-to-interop-with-other-functions">Return standard promises to interop with other functions</h4>
+				<pre><code class="language-typescript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">doStuff</span>(<span class="hljs-params"></span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">SomeData</span>&gt; </span>{
+  <span class="hljs-keyword">return</span> pipeAsync(
+    someResultFunction,
+    okChain(validateData),
+    errorReplace(<span class="hljs-string">"something went wrong"</span>),
+    okOrThrow
+  );
+}</code></pre>
 				<h2 id="typescript">Typescript</h2>
 				<p><code>result-async</code> is written in TypeScript, and it&#39;s built to help write typesafe error handling code. But it works great with vanilla JavaScript too!</p>
 				<p>One of the big benefits of adding <code>Result</code>s to <code>Promise</code>s is <code>Promise</code>s don&#39;t have type information about their error cases. But many promises have predictable error types, and
@@ -219,10 +228,12 @@ either(
   <span class="hljs-function"><span class="hljs-params">data</span> =&gt;</span> doSomething(data),
   <span class="hljs-function"><span class="hljs-params">msg</span> =&gt;</span> doSomethingElse(msg)
 );</code></pre>
-				<h3 id="readable-pipes">Readable pipes</h3>
 				<h3 id="what-about-fantasy-land">What about Fantasy-Land</h3>
 				<p>If you come from a Haskell-y background, you might be saying, &quot;hey, <code>Result</code> is just an <code>Either</code> type, and <code>okThen</code> is just <code>map</code>&quot;. You&#39;re right! And if you&#39;re looking for more abstract functional programming, you may be interested in libraries like <a href="https://github.com/sanctuary-js/sanctuary">Sanctuary</a> or <a href="https://github.com/origamitower/folktale">Folktalk</a>, which provide a Fantasy-Land compatible Either and Result types, respectively. <a href="https://github.com/fluture-js/Fluture">Fluture</a> is also a great tool for Fantasy-Land compatible asynchronous programming.</p>
 				<p>But if your team isn&#39;t ready that all that, think of <code>Result-Async</code> like a gateway drug for full ADT-style programming. It lets you write composable, functional programs, but with functions names that are trying to be friendlier to people who don&#39;t think in monands.</p>
+				<h2 id="update-npm">Update NPM</h2>
+				<pre><code class="language-bash">npm version patch | minor | major
+npm publish</code></pre>
 			</div>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">

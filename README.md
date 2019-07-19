@@ -276,6 +276,7 @@ But if your team isn't ready that all that, think of `Result-Async` like a gatew
 ## Update NPM
 
 ```bash
+yarn docs
 npm version patch | minor | major
 npm publish
 ```
