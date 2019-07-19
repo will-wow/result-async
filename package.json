@@ -28,7 +28,7 @@
     "url": "https://github.com/will-wow/result.git"
   },
   "engines": {
-    "node": "^8.11.3"
+    "node": ">=8.11.3"
   },
   "keywords": [
     "error",
