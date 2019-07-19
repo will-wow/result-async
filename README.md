@@ -272,3 +272,10 @@ either(
 If you come from a Haskell-y background, you might be saying, "hey, `Result` is just an `Either` type, and `okThen` is just `map`". You're right! And if you're looking for more abstract functional programming, you may be interested in libraries like [Sanctuary](https://github.com/sanctuary-js/sanctuary) or [Folktalk](https://github.com/origamitower/folktale), which provide a Fantasy-Land compatible Either and Result types, respectively. [Fluture](https://github.com/fluture-js/Fluture) is also a great tool for Fantasy-Land compatible asynchronous programming.
 
 But if your team isn't ready that all that, think of `Result-Async` like a gateway drug for full ADT-style programming. It lets you write composable, functional programs, but with functions names that are trying to be friendlier to people who don't think in monands.
+
+## Update NPM
+
+```bash
+npm version patch | minor | major
+npm publish
+```
