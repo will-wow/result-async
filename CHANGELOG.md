@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.2]
+
+### Changed
+
+- Consistently bind generics late for better type inference
+- Allow more versions of node
+
 ## [1.2.1]
 
 ### Changed
