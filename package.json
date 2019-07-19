@@ -1,6 +1,6 @@
 {
   "name": "result-async",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Error handling",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -28,7 +28,7 @@
     "url": "https://github.com/will-wow/result.git"
   },
   "engines": {
-    "node": "^8.11.3"
+    "node": ">=8.11.3"
   },
   "keywords": [
     "error",
@@ -40,20 +40,20 @@
     "fantasy land"
   ],
   "devDependencies": {
-    "@types/jest": "^24.0.9",
-    "@types/ramda": "^0.26.3",
-    "codecov": "^3.2.0",
-    "cross-fetch": "^3.0.1",
-    "jest": "^24.1.0",
-    "prettier": "^1.16.4",
+    "@types/jest": "^24.0.15",
+    "@types/ramda": "^0.26.16",
+    "codecov": "^3.5.0",
+    "cross-fetch": "^3.0.4",
+    "jest": "^24.8.0",
+    "prettier": "^1.18.2",
     "ramda": "^0.26.1",
-    "ts-jest": "^24.0.0",
-    "ts-node": "^8.0.3",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
     "tslint": "^5.13.1",
     "tslint-config-airbnb": "^5.11.1",
     "tslint-config-prettier": "^1.18.0",
     "typedoc": "^0.14.2",
-    "typescript": "^3.3.3333"
+    "typescript": "^3.5.3"
   },
   "dependencies": {}
 }
