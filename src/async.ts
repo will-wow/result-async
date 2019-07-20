@@ -7,6 +7,9 @@ import { Result, ok, error, isOk, isError } from "./result";
 export type ResultP<OkData, ErrorMessage> = Promise<
   Result<OkData, ErrorMessage>
 >;
+// Solves an error with returning ResultP from an async function.
+// tslint:disable-next-line:variable-name
+export const ResultP = Promise;
 
 /**
  * Chains together async operations that may succeed or fail
