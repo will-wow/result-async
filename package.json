@@ -6,7 +6,7 @@
   "module": "dist/result-async.js",
   "types": "dist/index.d.ts",
   "files": [
-    "lib/**/*",
+    "dist/**/*",
     "src/**/*"
   ],
   "scripts": {
