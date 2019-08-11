@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.5]
+
+### Fixed
+
+- Use rollup for better importing
+- Emit a CommonJS and Module distribution
+- Include typescript source files for source mapping
+
 ## [1.2.3]
 
 ### Changed
