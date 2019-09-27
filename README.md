@@ -38,7 +38,7 @@ import { ok, okThen, okChainAsync, Result } from "result-async";
 
 Here are some example of what working with `result-async` looks like.
 For more examples, and complete documentation, see
-[the docs](https://will-wow.github.io/result-async/)
+[the docs](https://will-wow.github.io/result-async/).
 
 ### Full Example
 
