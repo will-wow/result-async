@@ -2,7 +2,7 @@
 
 <img width="80" height="80" src="./assets/images/logo.png" alt="logo" align="right" />
 
-A library for handling errors with types and without exceptions - even asynchronous ones
+A library for handling errors with types and without exceptions - even asynchronous ones.
 
 [![npm package](https://img.shields.io/npm/v/result-async.svg)](https://www.npmjs.com/package/result-async)
 [![CircleCI](https://circleci.com/gh/will-wow/result-async.svg?style=svg)](https://circleci.com/gh/will-wow/result-async)
@@ -19,19 +19,48 @@ A library for handling errors with types and without exceptions - even asynchron
 ## Install
 
 ```bash
-npm i result-async --save
-```
-
-or
-
-```bash
-yarn add result-async
+npm i result-async pipeout --save
+# or
+yarn add result-async pipeout
 ```
 
 Then import the functions and (in TypeScript) types you need:
 
 ```typescript
 import { ok, okThen, okChainAsync, Result } from "result-async";
+import { pipeA } from "pipeout";
+```
+
+## Useful addition: a pipe functions
+
+`result-async` is designed to work with a `pipe` function. Ramda has [pipe](https://ramdajs.com/docs/#pipe) and [pipeP](https://ramdajs.com/docs/#pipeP) functions, and Lodash has [flow](https://lodash.com/docs/4.17.15#flow). But `pipe` and `flow` don't handle promise-returning functions, and `pipeP` won't handle adding a non-promise function to the middle of your pipeline.
+
+For a typesafe `pipe` that handles async functions, you can use this author's [pipeout](https://github.com/will-wow/pipeout). `pipeout.pipeA` works like a normal `pipe`, but every function you add to the pipeline is partially applied, and you use `.value` to get the final result. That turns
+
+```javascript
+c(await b(a(await x)));
+```
+
+into
+
+```javascript
+pipe(x)(a)(b)(c).value;
+```
+
+It has a few other varients of `pipe`, you can see [the pipeout docs](https://will-wow.github.io/pipeout) for more information.
+
+### Install pipeout
+
+If you want to use pipeout, you just have to install and import it.
+
+```bash
+npm i result-async pipeout --save
+# or
+yarn add result-async pipeout
+```
+
+```typescript
+import { pipeA } from "pipeout";
 ```
 
 ## Examples
@@ -49,19 +78,20 @@ Here's an example of the sort of data-processing pipelines you can build:
 
 ```typescript
 async function countAllComments(postsCache: PostsCache): Promise<number> {
-  return pipeAsync(
-    promiseToResult(postsCache.getCache()),
-    errorDo(console.error),
-    errorRescueAsync(fetchPosts),
-    okDo(logPostCount),
-    okDoAsync(postsCache.updateCache),
-    okThen(R.map(fetchCommentsForPost)),
-    okChainAsync(allOkAsync),
-    okThen(R.map(comments => comments.length)),
-    okThen(R.sum),
-    okDo(logCommentTotal),
-    okOrThrow
-  );
+  // prettier-ignore
+  return pipeA
+    (promiseToResult(postsCache.getCache()))
+    (errorDo(console.error))
+    (errorRescueAsync(fetchPosts))
+    (okDo(logPostCount))
+    (okDoAsync(postsCache.updateCache))
+    (okThen(R.map(fetchCommentsForPost)))
+    (okChainAsync(allOkAsync))
+    (okThen(R.map(comments => comments.length)))
+    (okThen(R.sum))
+    (okDo(logCommentTotal))
+    (okOrThrow)
+    .value;
 }
 ```
 
@@ -79,6 +109,12 @@ Functions ending in `async` will return a `Promise` that resolves to a `Result`.
 TypeScript track types, and helps developers differentiate between pure and impure functions.
 
 See [./src/full-example](https://github.com/will-wow/result-async/blob/master/src/full-example.ts) for a full working example.
+
+To run the example, run:
+
+```bash
+yarn ts-node -O '{"module": "commonjs"}' src/full-example.ts
+```
 
 ### Techniques
 
@@ -103,38 +139,46 @@ return isAllWell() ? ok("all is well") : error("all is lost");
 #### Kick off asynchronous calls without waiting for a response
 
 ```typescript
-pipeAsync(
-  fetchUser(),
-  errorDo(sendErrorToLoggingSystem)
-  errorRescueAsync(logOutUser)
+import { fetchUser, errorDo, errorRescueAsync } from "result-async";
+import { pipeA } from "pipeout";
+
+// prettier-ignore
+pipeA
+  (fetchUser())
+  (errorDo(sendErrorToLoggingSystem))
+  (errorRescueAsync(logOutUser))
 );
 ```
 
 #### Transform promise functions into result functions
 
 ```typescript
-import { resultify } from "result-async";
+import { resultify, errorThen, okChainAsync } from "result-async";
+import { pipeA } from "pipeout";
 
-const fetchResult = resultify(fetch)
+const fetchResult = resultify(fetch);
 
-pipeAsync(
-  someUrl,
-  fetchResult,
-  errorThen(transformError)
-  okChainAsync(anotherAsyncFunction)
-);
+// prettier-ignore
+pipeA
+  (someUrl)
+  (fetchResult)
+  (errorThen(transformError))
+  (okChainAsync(anotherAsyncFunction))
 ```
 
 #### Return standard promises to interop with other functions
 
 ```typescript
+import { okChain, errorReplace } from "result-async";
+import { pipeA } from "pipeout";
+
 function doStuff(): Promise<SomeData> {
-  return pipeAsync(
-    someResultFunction,
-    okChain(validateData),
-    errorReplace("something went wrong"),
-    okOrThrow
-  );
+  // prettier-ignore
+  return pipeA(
+    (someResultFunction)
+    (okChain(validateData))
+    (errorReplace("something went wrong"))
+    (okOrThrow)
 }
 ```
 
@@ -142,9 +186,7 @@ function doStuff(): Promise<SomeData> {
 
 `result-async` is written in TypeScript, and it's built to help write typesafe error handling code. But it works great with vanilla JavaScript too!
 
-One of the big benefits of adding `Result`s to `Promise`s is `Promise`s don't have type information about their error cases. But many promises have predictable error types, and
-you can have your asynchronous functions return a `ResultP` to encode those errors types
-in the type system.
+One of the big benefits of `ResultP`, a `Promise` of a `Result`, is that `Promise`s don't have type information about their error case. But many promises have predictable error types. So, you can have your asynchronous functions return a `ResultP` to declare those errors types in the type system.
 
 Also `ResultP`s should _always_ resolve and never be rejected. This means no more `try/catch` blocks, even when using `async/await`.
 
@@ -162,8 +204,7 @@ So a `Result` could be either Ok or an Error - and either way, the payload is st
 ### Guards
 
 [`isOk(result)`](https://will-wow.github.io/result-async/globals.html#isok) and
-[`isError(result)`](https://will-wow.github.io/result-async/globals.html#iserror) are both
-typeguards, so if `isOk` returns true, typescript will know the Result is actually an OkResult:
+[`isError(result)`](https://will-wow.github.io/result-async/globals.html#iserror) are both typeguards, so if `isOk` returns true, typescript will know the Result is actually an OkResult:
 
 ```typescript
 function(result: Result<number, string>) {
@@ -181,7 +222,7 @@ function(result: Result<number, string>) {
 
 If you're using a library like [Jest](https://github.com/facebook/jest) for testing, you can generally follow your testing library's advice for [testing asynchronous code](https://jest-bot.github.io/jest/docs/asynchronous.html#content).
 
-Unlike with standard promises, you don't have to worry about rejected promises throwing errors.
+Unlike with standard promises, you don't have to worry about errored `ResultP`s throwing errors.
 
 You'll probably want to test if your calls succeed or fail. If you want to check both the result and payload, try matching against another `result`:
 
@@ -193,7 +234,7 @@ it("should be fine", async () => {
 });
 ```
 
-If you only want to check if a call succeeded for failed, try just checking for the presence of "ok" or "error" for a nice readable test:
+If you only want to check if a call succeeded for failed, you can just check for the presence of "ok" or "error".
 
 ```javascript
 it("should be fine", async () => {
@@ -230,7 +271,7 @@ someFunction(data, (err, data) => {
 });
 ```
 
-Replaced with:
+When we can now use `async/await` to do this:
 
 ```javascript
 try {
@@ -242,7 +283,7 @@ try {
 }
 ```
 
-Much better. But still, errors are treated really differently than normal data. And in TypeScript, errors are also untyped. For a genuine exception that's fine, but there are a lot of cases where I expect a call to sometimes fail (for instance, checking if a resource exists, and creating one if it doesn't, where creation itself might fail). In those cases, having to rely on errors can feel a little heavyweight.
+Much better. But still, errors are treated really differently than normal data. And in TypeScript, errors are also untyped. For a genuine exception that's fine, but there are a lot of cases where I expect a call to sometimes fail (for instance, a request to an endpoint that could 404). In those cases, having to rely on catching errors can feel a little heavyweight.
 
 The functional programming world has an answer for this - the Result type. It's in [Haskell](http://book.realworldhaskell.org/read/error-handling.html#errors.either), [Ocaml](https://ocaml.org/learn/tutorials/error_handling.html#Result-type), [Elixir](https://medium.com/@moxicon/elixir-best-practices-for-error-values-50dc015a06f5), and more. The idea is to have a function that could fail return a response that's marked as either a Success or a Failure. Then you can react to that result status, pass it along, ignore it, or whatever - just like any other data structure.
 
@@ -273,7 +314,7 @@ If you come from a Haskell-y background, you might be saying, "hey, `Result` is 
 
 But if your team isn't ready that all that, think of `Result-Async` like a gateway drug for full ADT-style programming. It lets you write composable, functional programs, but with functions names that are trying to be friendlier to people who don't think in monands.
 
-## Update NPM
+## Publishing Updates
 
 ```bash
 yarn docs

@@ -1,7 +1,6 @@
 import { Result, isOk, ok, error } from "./result";
 import { okChain } from "./sync";
 import { ResultP, promiseToResult } from "./async";
-import { pipeAsync } from "./pipeAsync";
 
 /**
  * For checking that a collection of computations all succeeded.
@@ -43,21 +42,21 @@ export function allOk<OkData, ErrorMessage>(
  *
  * ```javascript
  * function countComments(postId) {
- *   return pipeAsync(
- *     fetchAllComments(postId),
- *     allOkAsync,
- *     okThen(comments => comments.length)
- *     errorReplace("some comments didn't load")
- *   )
+ *   return pipeA
+ *     (fetchAllComments(postId)),
+ *     (allOkAsync),
+ *     (okThen(comments => comments.length))
+ *     (errorReplace("some comments didn't load"))
  * }
  * ```
  */
 export async function allOkAsync<OkData, ErrorMessage>(
   promises: ResultP<OkData, ErrorMessage>[]
 ): ResultP<OkData[], ErrorMessage> {
-  return pipeAsync(
-    promiseToResult(Promise.all(promises)),
-    okChain(results => allOk(results))
+  const results = await promiseToResult(Promise.all(promises));
+
+  return okChain((results: Result<OkData, ErrorMessage>[]) => allOk(results))(
+    results
   );
 }
 

@@ -23,11 +23,11 @@ export const ResultP = Promise;
  * @returns - The Result from function f or the Error
  *
  * ```javascript
- * pipeAsync(
- *   fetchUser(),
- *   okChainAsync(user => fetchComments(user.id)),
- *   okDo(comments => console.log('total comments:', comments.length))
- * )
+ * pipeA
+ *   (fetchUser())
+ *   (okChainAsync(user => fetchComments(user.id)))
+ *   (okDo(comments => console.log('total comments:', comments.length))
+ *   .value
  * ```
  */
 export function okChainAsync<OkData, OkOutput, ErrorOutput>(
@@ -57,11 +57,11 @@ export function okChainAsync<OkData, OkOutput, ErrorOutput>(
  *
  * ```javascript
  * const fetchData = () => fetch("https://example.com/data");
- * pipeAsync(
- *   getCachedData,
- *   errorRescueAsync(fetchData),
- *   okThen(transformData)
- * )
+ * pipeA
+ *   (getCachedData)
+ *   (errorRescueAsync(fetchData))
+ *   (okThen(transformData))
+ *   .value
  * ```
  */
 export function errorRescueAsync<ErrorMessage, OkOutput, ErrorOutput>(
@@ -86,12 +86,11 @@ export function errorRescueAsync<ErrorMessage, OkOutput, ErrorOutput>(
  * @returns A promise of the the original result
  *
  * ```javascript
- * pipeAsync(
- *   fetchData,
+ * pipeA(
+ *   (fetchData)
  *   // Saves to cache, and awaits completion before moving on.
- *   okDoAsync(saveToCache),
- *   okThen(transformData)
- * )
+ *   (okDoAsync(saveToCache))
+ *   (okThen(transformData))
  * ```
  */
 export function okDoAsync<OkData>(f: (ok: OkData) => any) {
@@ -113,12 +112,11 @@ export function okDoAsync<OkData>(f: (ok: OkData) => any) {
  * @returns a promise of the original Result
  *
  * ```javascript
- * pipeAsync(
- *   fetchData,
+ * pipeA(
+ *   (fetchData)
  *   // Logs an error, and awaits completion before moving on.
- *   errorDoAsync(logError),
- *   okThen(transformData)
- * )
+ *   (errorDoAsync(logError))
+ *   (okThen(transformData))
  * ```
  */
 export function errorDoAsync<ErrorMessage>(f: (ok: ErrorMessage) => any) {
@@ -143,11 +141,10 @@ export function errorDoAsync<ErrorMessage>(f: (ok: ErrorMessage) => any) {
  * @returns Ok if the promise resolved, Error if it was rejected.
  *
  * ```javascript
- * pipeAsync(
- *   promiseToResult(fetch("http://example.com/data")),
- *   errorThen(handleError),
- *   okThen(transformData)
- * )
+ * pipeA(
+ *   (promiseToResult(fetch("http://example.com/data")))
+ *   (errorThen(handleError))
+ *   (okThen(transformData))
  * ```
  */
 export function promiseToResult<OkData>(
@@ -169,10 +166,10 @@ export function promiseToResult<OkData>(
  * ```javascript
  * const writeFile = resultify(promisify(fs.writeFile));
  *
- * pipeAsync(
- *   writeFile("path/to/file"),
- *   errorThen(handleError),
- *   okThen(transformFileData)
+ * pipeA(
+ *   (writeFile("path/to/file"))
+ *   (errorThen(handleError))
+ *   (okThen(transformFileData))
  * )
  * ```
  */

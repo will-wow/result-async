@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Added a dependency on [pipeout]()
+
 ## [1.2.5]
 
 ### Added
@@ -54,7 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Pipeable function names to be prefixed with `ok` or `error`
-- Better type inference for pipeAsync
+- Better type inference for
 
 ## [1.1.0]
 

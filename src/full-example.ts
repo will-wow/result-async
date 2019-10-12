@@ -1,5 +1,5 @@
-import fetch from "cross-fetch";
 import * as R from "ramda";
+import fetch from "cross-fetch";
 
 // An example of working with `result-async` in different ways.
 //
@@ -21,11 +21,12 @@ import {
   okDoAsync,
   okOrThrow,
   okThen,
-  pipeAsync,
   promiseToResult,
   resultify,
   ResultP
 } from "./index";
+
+import { pipeA } from "pipeout";
 
 interface Post {
   userId: number;
@@ -53,19 +54,20 @@ const baseUrl = "https://jsonplaceholder.typicode.com";
  * first word of the functions in the pipe.
  */
 async function countAllComments(postsCache: PostsCache): Promise<number> {
-  return pipeAsync(
-    promiseToResult(postsCache.getCache()),
-    errorDo(console.error),
-    errorRescueAsync(fetchPosts),
-    okDo(logPostCount),
-    okDoAsync(postsCache.updateCache),
-    okThen(R.map(fetchCommentsForPost)),
-    okChainAsync(allOkAsync),
-    okThen(R.map(comments => comments.length)),
-    okThen(R.sum),
-    okDo(logCommentTotal),
-    okOrThrow
-  );
+  // prettier-ignore
+  return pipeA
+    (promiseToResult(postsCache.getCache()))
+    (errorDo(console.error))
+    (errorRescueAsync(fetchPosts))
+    (okDo(logPostCount))
+    (okDoAsync(postsCache.updateCache))
+    (okThen(R.map(fetchCommentsForPost)))
+    (okChainAsync(allOkAsync))
+    (okThen(R.map(comments => comments.length)))
+    (okThen(R.sum))
+    (okDo(logCommentTotal))
+    (okOrThrow)
+    .value;
 }
 
 /**
@@ -171,10 +173,11 @@ function promiseGet<T>(url: string): Promise<T> {
 }
 
 function get<T>(url: string): ResultP<T, any> {
-  return pipeAsync(
-    fetchResult(`${baseUrl}${url}`),
-    okChainAsync(res => promiseToResult(res.json()))
-  );
+  // prettier-ignore
+  return pipeA
+    (fetchResult(`${baseUrl}${url}`))
+    (okChainAsync(res => promiseToResult(res.json())))
+    .value
 }
 
 const fetchResult = resultify(fetch);

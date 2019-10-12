@@ -64,7 +64,7 @@
 					<h1>Result-Async</h1>
 				</a>
 				<img width="80" height="80" src="./assets/images/logo.png" alt="logo" align="right" />
-				<p>A library for handling errors with types and without exceptions - even asynchronous ones</p>
+				<p>A library for handling errors with types and without exceptions - even asynchronous ones.</p>
 				<p><a href="https://www.npmjs.com/package/result-async"><img src="https://img.shields.io/npm/v/result-async.svg" alt="npm package"></a>
 					<a href="https://circleci.com/gh/will-wow/result-async"><img src="https://circleci.com/gh/will-wow/result-async.svg?style=svg" alt="CircleCI"></a>
 					<a href="https://david-dm.org/will-wow/result-async"><img src="https://david-dm.org/will-wow/result-async.svg" alt="David Dependency Status"></a>
@@ -79,11 +79,29 @@
 				<a href="#install" id="install" style="color: inherit; text-decoration: none;">
 					<h2>Install</h2>
 				</a>
-				<pre><code class="language-bash">npm i result-async --save</code></pre>
-				<p>or</p>
-				<pre><code class="language-bash">yarn add result-async</code></pre>
+				<pre><code class="language-bash">npm i result-async pipeout --save
+<span class="hljs-comment"># or</span>
+yarn add result-async pipeout</code></pre>
 				<p>Then import the functions and (in TypeScript) types you need:</p>
-				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ok, okThen, okChainAsync, Result } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;</code></pre>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { ok, okThen, okChainAsync, Result } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
+<span class="hljs-keyword">import</span> { pipeA } <span class="hljs-keyword">from</span> <span class="hljs-string">"pipeout"</span>;</code></pre>
+				<a href="#useful-addition-a-pipe-functions" id="useful-addition-a-pipe-functions" style="color: inherit; text-decoration: none;">
+					<h2>Useful addition: a pipe functions</h2>
+				</a>
+				<p><code>result-async</code> is designed to work with a <code>pipe</code> function. Ramda has <a href="https://ramdajs.com/docs/#pipe">pipe</a> and <a href="https://ramdajs.com/docs/#pipeP">pipeP</a> functions, and Lodash has <a href="https://lodash.com/docs/4.17.15#flow">flow</a>. But <code>pipe</code> and <code>flow</code> don&#39;t handle promise-returning functions, and <code>pipeP</code> won&#39;t handle adding a non-promise function to the middle of your pipeline.</p>
+				<p>For a typesafe <code>pipe</code> that handles async functions, you can use this author&#39;s <a href="https://github.com/will-wow/pipeout">pipeout</a>. <code>pipeout.pipeA</code> works like a normal <code>pipe</code>, but every function you add to the pipeline is partially applied, and you use <code>.value</code> to get the final result. That turns</p>
+				<pre><code class="language-javascript">c(<span class="hljs-keyword">await</span> b(a(<span class="hljs-keyword">await</span> x)));</code></pre>
+				<p>into</p>
+				<pre><code class="language-javascript">pipe(x)(a)(b)(c).value;</code></pre>
+				<p>It has a few other varients of <code>pipe</code>, you can see <a href="https://will-wow.github.io/pipeout">the pipeout docs</a> for more information.</p>
+				<a href="#install-pipeout" id="install-pipeout" style="color: inherit; text-decoration: none;">
+					<h3>Install pipeout</h3>
+				</a>
+				<p>If you want to use pipeout, you just have to install and import it.</p>
+				<pre><code class="language-bash">npm i result-async pipeout --save
+<span class="hljs-comment"># or</span>
+yarn add result-async pipeout</code></pre>
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { pipeA } <span class="hljs-keyword">from</span> <span class="hljs-string">"pipeout"</span>;</code></pre>
 				<a href="#examples" id="examples" style="color: inherit; text-decoration: none;">
 					<h2>Examples</h2>
 				</a>
@@ -97,19 +115,20 @@
 				using techniques from functional programming.</p>
 				<p>Here&#39;s an example of the sort of data-processing pipelines you can build:</p>
 				<pre><code class="language-typescript"><span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">countAllComments</span>(<span class="hljs-params">postsCache: PostsCache</span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">number</span>&gt; </span>{
-  <span class="hljs-keyword">return</span> pipeAsync(
-    promiseToResult(postsCache.getCache()),
-    errorDo(<span class="hljs-built_in">console</span>.error),
-    errorRescueAsync(fetchPosts),
-    okDo(logPostCount),
-    okDoAsync(postsCache.updateCache),
-    okThen(R.map(fetchCommentsForPost)),
-    okChainAsync(allOkAsync),
-    okThen(R.map(<span class="hljs-function"><span class="hljs-params">comments</span> =&gt;</span> comments.length)),
-    okThen(R.sum),
-    okDo(logCommentTotal),
-    okOrThrow
-  );
+  <span class="hljs-comment">// prettier-ignore</span>
+  <span class="hljs-keyword">return</span> pipeA
+    (promiseToResult(postsCache.getCache()))
+    (errorDo(<span class="hljs-built_in">console</span>.error))
+    (errorRescueAsync(fetchPosts))
+    (okDo(logPostCount))
+    (okDoAsync(postsCache.updateCache))
+    (okThen(R.map(fetchCommentsForPost)))
+    (okChainAsync(allOkAsync))
+    (okThen(R.map(<span class="hljs-function"><span class="hljs-params">comments</span> =&gt;</span> comments.length)))
+    (okThen(R.sum))
+    (okDo(logCommentTotal))
+    (okOrThrow)
+    .value;
 }</code></pre>
 				<p>The basic premise is functions that start with <code>ok</code> will only operate on successful data,
 					and pass on error messages.
@@ -121,6 +140,8 @@
 				<p>Functions ending in <code>async</code> will return a <code>Promise</code> that resolves to a <code>Result</code>. This helps
 				TypeScript track types, and helps developers differentiate between pure and impure functions.</p>
 				<p>See <a href="https://github.com/will-wow/result-async/blob/master/src/full-example.ts">./src/full-example</a> for a full working example.</p>
+				<p>To run the example, run:</p>
+				<pre><code class="language-bash">yarn ts-node -O <span class="hljs-string">'{"module": "commonjs"}'</span> src/full-example.ts</code></pre>
 				<a href="#techniques" id="techniques" style="color: inherit; text-decoration: none;">
 					<h3>Techniques</h3>
 				</a>
@@ -141,42 +162,48 @@
 				<a href="#kick-off-asynchronous-calls-without-waiting-for-a-response" id="kick-off-asynchronous-calls-without-waiting-for-a-response" style="color: inherit; text-decoration: none;">
 					<h4>Kick off asynchronous calls without waiting for a response</h4>
 				</a>
-				<pre><code class="language-typescript">pipeAsync(
-  fetchUser(),
-  errorDo(sendErrorToLoggingSystem)
-  errorRescueAsync(logOutUser)
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { fetchUser, errorDo, errorRescueAsync } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
+<span class="hljs-keyword">import</span> { pipeA } <span class="hljs-keyword">from</span> <span class="hljs-string">"pipeout"</span>;
+
+<span class="hljs-comment">// prettier-ignore</span>
+pipeA
+  (fetchUser())
+  (errorDo(sendErrorToLoggingSystem))
+  (errorRescueAsync(logOutUser))
 );</code></pre>
 				<a href="#transform-promise-functions-into-result-functions" id="transform-promise-functions-into-result-functions" style="color: inherit; text-decoration: none;">
 					<h4>Transform promise functions into result functions</h4>
 				</a>
-				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { resultify } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { resultify, errorThen, okChainAsync } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
+<span class="hljs-keyword">import</span> { pipeA } <span class="hljs-keyword">from</span> <span class="hljs-string">"pipeout"</span>;
 
-<span class="hljs-keyword">const</span> fetchResult = resultify(fetch)
+<span class="hljs-keyword">const</span> fetchResult = resultify(fetch);
 
-pipeAsync(
-  someUrl,
-  fetchResult,
-  errorThen(transformError)
-  okChainAsync(anotherAsyncFunction)
-);</code></pre>
+<span class="hljs-comment">// prettier-ignore</span>
+pipeA
+  (someUrl)
+  (fetchResult)
+  (errorThen(transformError))
+  (okChainAsync(anotherAsyncFunction))</code></pre>
 				<a href="#return-standard-promises-to-interop-with-other-functions" id="return-standard-promises-to-interop-with-other-functions" style="color: inherit; text-decoration: none;">
 					<h4>Return standard promises to interop with other functions</h4>
 				</a>
-				<pre><code class="language-typescript"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">doStuff</span>(<span class="hljs-params"></span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">SomeData</span>&gt; </span>{
-  <span class="hljs-keyword">return</span> pipeAsync(
-    someResultFunction,
-    okChain(validateData),
-    errorReplace(<span class="hljs-string">"something went wrong"</span>),
-    okOrThrow
-  );
+				<pre><code class="language-typescript"><span class="hljs-keyword">import</span> { okChain, errorReplace } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
+<span class="hljs-keyword">import</span> { pipeA } <span class="hljs-keyword">from</span> <span class="hljs-string">"pipeout"</span>;
+
+<span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">doStuff</span>(<span class="hljs-params"></span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">SomeData</span>&gt; </span>{
+  <span class="hljs-comment">// prettier-ignore</span>
+  <span class="hljs-keyword">return</span> pipeA(
+    (someResultFunction)
+    (okChain(validateData))
+    (errorReplace(<span class="hljs-string">"something went wrong"</span>))
+    (okOrThrow)
 }</code></pre>
 				<a href="#typescript" id="typescript" style="color: inherit; text-decoration: none;">
 					<h2>Typescript</h2>
 				</a>
 				<p><code>result-async</code> is written in TypeScript, and it&#39;s built to help write typesafe error handling code. But it works great with vanilla JavaScript too!</p>
-				<p>One of the big benefits of adding <code>Result</code>s to <code>Promise</code>s is <code>Promise</code>s don&#39;t have type information about their error cases. But many promises have predictable error types, and
-					you can have your asynchronous functions return a <code>ResultP</code> to encode those errors types
-				in the type system.</p>
+				<p>One of the big benefits of <code>ResultP</code>, a <code>Promise</code> of a <code>Result</code>, is that <code>Promise</code>s don&#39;t have type information about their error case. But many promises have predictable error types. So, you can have your asynchronous functions return a <code>ResultP</code> to declare those errors types in the type system.</p>
 				<p>Also <code>ResultP</code>s should <em>always</em> resolve and never be rejected. This means no more <code>try/catch</code> blocks, even when using <code>async/await</code>.</p>
 				<a href="#types" id="types" style="color: inherit; text-decoration: none;">
 					<h3>Types</h3>
@@ -189,8 +216,7 @@ pipeAsync(
 					<h3>Guards</h3>
 				</a>
 				<p><a href="https://will-wow.github.io/result-async/globals.html#isok"><code>isOk(result)</code></a> and
-					<a href="https://will-wow.github.io/result-async/globals.html#iserror"><code>isError(result)</code></a> are both
-				typeguards, so if <code>isOk</code> returns true, typescript will know the Result is actually an OkResult:</p>
+				<a href="https://will-wow.github.io/result-async/globals.html#iserror"><code>isError(result)</code></a> are both typeguards, so if <code>isOk</code> returns true, typescript will know the Result is actually an OkResult:</p>
 				<pre><code class="language-typescript"><span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">result: Result&lt;<span class="hljs-built_in">number</span>, <span class="hljs-built_in">string</span>&gt;</span>) </span>{
   <span class="hljs-comment">// Type error: ok could be undefined.</span>
   result.ok + <span class="hljs-number">1</span>
@@ -204,14 +230,14 @@ pipeAsync(
 					<h2>Testing with Result-Async</h2>
 				</a>
 				<p>If you&#39;re using a library like <a href="https://github.com/facebook/jest">Jest</a> for testing, you can generally follow your testing library&#39;s advice for <a href="https://jest-bot.github.io/jest/docs/asynchronous.html#content">testing asynchronous code</a>.</p>
-				<p>Unlike with standard promises, you don&#39;t have to worry about rejected promises throwing errors.</p>
+				<p>Unlike with standard promises, you don&#39;t have to worry about errored <code>ResultP</code>s throwing errors.</p>
 				<p>You&#39;ll probably want to test if your calls succeed or fail. If you want to check both the result and payload, try matching against another <code>result</code>:</p>
 				<pre><code class="language-javascript"><span class="hljs-keyword">import</span> { ok } <span class="hljs-keyword">from</span> <span class="hljs-string">"result-async"</span>;
 
 it(<span class="hljs-string">"should be fine"</span>, <span class="hljs-keyword">async</span> () =&gt; {
   expect(<span class="hljs-keyword">await</span> myResultyFunction()).toEqual(ok(<span class="hljs-string">"all is well"</span>));
 });</code></pre>
-				<p>If you only want to check if a call succeeded for failed, try just checking for the presence of &quot;ok&quot; or &quot;error&quot; for a nice readable test:</p>
+				<p>If you only want to check if a call succeeded for failed, you can just check for the presence of &quot;ok&quot; or &quot;error&quot;.</p>
 				<pre><code class="language-javascript">it(<span class="hljs-string">"should be fine"</span>, <span class="hljs-keyword">async</span> () =&gt; {
   expect(<span class="hljs-keyword">await</span> myResultyFunction()).toHaveProperty(<span class="hljs-string">"ok"</span>);
 });</code></pre>
@@ -237,7 +263,7 @@ it(<span class="hljs-string">"should be fine"</span>, <span class="hljs-keyword"
     });
   });
 });</code></pre>
-				<p>Replaced with:</p>
+				<p>When we can now use <code>async/await</code> to do this:</p>
 				<pre><code class="language-javascript"><span class="hljs-keyword">try</span> {
   data = <span class="hljs-keyword">await</span> someFunction(data);
   data = <span class="hljs-keyword">await</span> secondFunction(data);
@@ -245,7 +271,7 @@ it(<span class="hljs-string">"should be fine"</span>, <span class="hljs-keyword"
 } <span class="hljs-keyword">catch</span> (e) {
   doSomethingWithError(e);
 }</code></pre>
-				<p>Much better. But still, errors are treated really differently than normal data. And in TypeScript, errors are also untyped. For a genuine exception that&#39;s fine, but there are a lot of cases where I expect a call to sometimes fail (for instance, checking if a resource exists, and creating one if it doesn&#39;t, where creation itself might fail). In those cases, having to rely on errors can feel a little heavyweight.</p>
+				<p>Much better. But still, errors are treated really differently than normal data. And in TypeScript, errors are also untyped. For a genuine exception that&#39;s fine, but there are a lot of cases where I expect a call to sometimes fail (for instance, a request to an endpoint that could 404). In those cases, having to rely on catching errors can feel a little heavyweight.</p>
 				<p>The functional programming world has an answer for this - the Result type. It&#39;s in <a href="http://book.realworldhaskell.org/read/error-handling.html#errors.either">Haskell</a>, <a href="https://ocaml.org/learn/tutorials/error_handling.html#Result-type">Ocaml</a>, <a href="https://medium.com/@moxicon/elixir-best-practices-for-error-values-50dc015a06f5">Elixir</a>, and more. The idea is to have a function that could fail return a response that&#39;s marked as either a Success or a Failure. Then you can react to that result status, pass it along, ignore it, or whatever - just like any other data structure.</p>
 				<p>In many FP languages, we have pattern matching to make this easier:</p>
 				<pre><code class="language-elixir"><span class="hljs-keyword">case</span> some_async_function() <span class="hljs-keyword">do</span>
@@ -265,8 +291,8 @@ either(
 				</a>
 				<p>If you come from a Haskell-y background, you might be saying, &quot;hey, <code>Result</code> is just an <code>Either</code> type, and <code>okThen</code> is just <code>map</code>&quot;. You&#39;re right! And if you&#39;re looking for more abstract functional programming, you may be interested in libraries like <a href="https://github.com/sanctuary-js/sanctuary">Sanctuary</a> or <a href="https://github.com/origamitower/folktale">Folktalk</a>, which provide a Fantasy-Land compatible Either and Result types, respectively. <a href="https://github.com/fluture-js/Fluture">Fluture</a> is also a great tool for Fantasy-Land compatible asynchronous programming.</p>
 				<p>But if your team isn&#39;t ready that all that, think of <code>Result-Async</code> like a gateway drug for full ADT-style programming. It lets you write composable, functional programs, but with functions names that are trying to be friendlier to people who don&#39;t think in monands.</p>
-				<a href="#update-npm" id="update-npm" style="color: inherit; text-decoration: none;">
-					<h2>Update NPM</h2>
+				<a href="#publishing-updates" id="publishing-updates" style="color: inherit; text-decoration: none;">
+					<h2>Publishing Updates</h2>
 				</a>
 				<pre><code class="language-bash">yarn docs
 npm version patch | minor | major
@@ -300,9 +326,6 @@ npm publish</code></pre>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#attempt" class="tsd-kind-icon">attempt</a>
-					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#createpipeasync" class="tsd-kind-icon">create<wbr>Pipe<wbr>Async</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#either" class="tsd-kind-icon">either</a>
@@ -369,9 +392,6 @@ npm publish</code></pre>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#parsejson" class="tsd-kind-icon">parse<wbr>Json</a>
-					</li>
-					<li class=" tsd-kind-function tsd-has-type-parameter">
-						<a href="globals.html#pipeasync" class="tsd-kind-icon">pipe<wbr>Async</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#promisetoresult" class="tsd-kind-icon">promise<wbr>ToResult</a>
