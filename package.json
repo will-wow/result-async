@@ -1,6 +1,6 @@
 {
   "name": "result-async",
-  "version": "1.2.5",
+  "version": "1.3.0",
   "description": "Error handling",
   "main": "dist/result-async.cjs.js",
   "module": "dist/result-async.js",
